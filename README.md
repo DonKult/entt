@@ -641,13 +641,13 @@ notified on the creation of a component, use the `construction` member function:
 registry.construction<Position>().connect<&MyFreeFunction>();
 
 // connects a member function
-registry.construction<Position>().connect<MyClass, &MyClass::member>(&instance);
+registry.construction<Position>().connect<&MyClass::member>(&instance);
 
 // disconnects a free function
 registry.construction<Position>().disconnect<&MyFreeFunction>();
 
 // disconnects a member function
-registry.construction<Position>().disconnect<MyClass, &MyClass::member>(&instance);
+registry.construction<Position>().disconnect<&MyClass::member>(&instance);
 ```
 
 To be notified when components are destroyed, use the `destruction` member
@@ -702,7 +702,7 @@ member functions as in the following example:
 
 ```cpp
 registry.construction<MyTag>(entt::tag_t{}).connect<&MyFreeFunction>();
-registry.destruction<MyTag>(entt::tag_t{}).connect<MyClass, &MyClass::member>(&instance);
+registry.destruction<MyTag>(entt::tag_t{}).connect<&MyClass::member>(&instance);
 ```
 
 Listeners for tags and components are managed separately and do not influence
@@ -2355,7 +2355,7 @@ struct S {
 S instance;
 
 signal.sink().connect<&foo>();
-signal.sink().connect<S, &S::bar>(&instance);
+signal.sink().connect<&S::bar>(&instance);
 
 // ...
 
@@ -2363,7 +2363,7 @@ signal.sink().connect<S, &S::bar>(&instance);
 signal.sink().disconnect<&foo>();
 
 // disconnect a specific member function of an instance ...
-signal.sink().disconnect<S, &S::bar>(&instance);
+signal.sink().disconnect<&S::bar>(&instance);
 
 // ... or an instance as a whole
 signal.sink().disconnect(&instance);
@@ -2510,7 +2510,7 @@ struct Listener
 
 Listener listener;
 dispatcher.sink<AnEvent>().connect(&listener);
-dispatcher.sink<AnotherEvent>().connect<Listener, &Listener::method>(&listener);
+dispatcher.sink<AnotherEvent>().connect<&Listener::method>(&listener);
 ```
 
 The `disconnect` member function follows the same pattern and can be used to
@@ -2518,7 +2518,7 @@ selectively remove listeners:
 
 ```cpp
 dispatcher.sink<AnEvent>().disconnect(&listener);
-dispatcher.sink<AnotherEvent>().disconnect<Listener, &Listener::method>(&listener);
+dispatcher.sink<AnotherEvent>().disconnect<&Listener::method>(&listener);
 ```
 
 The `trigger` member function serves the purpose of sending an immediate event
