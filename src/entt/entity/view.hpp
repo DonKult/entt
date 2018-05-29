@@ -578,11 +578,11 @@ class View final {
     }
 
     template<typename Comp, typename Other>
-    inline std::enable_if_t<std::is_same<Comp, Other>::value, const Other &>
+    inline std::enable_if_t<std::is_same_v<Comp, Other>, const Other &>
     get(const component_iterator_type<Comp> &it, const Entity) const ENTT_NOEXCEPT { return *it; }
 
     template<typename Comp, typename Other>
-    inline std::enable_if_t<!std::is_same<Comp, Other>::value, const Other &>
+    inline std::enable_if_t<!std::is_same_v<Comp, Other>, const Other &>
     get(const component_iterator_type<Comp> &, const Entity entity) const ENTT_NOEXCEPT { return pool<Other>().get(entity); }
 
     template<typename Comp, typename Func, std::size_t... Indexes>

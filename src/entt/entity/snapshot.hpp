@@ -446,13 +446,13 @@ class ContinuousLoader final {
     }
 
     template<typename Type, typename Member>
-    std::enable_if_t<std::is_same<Member, Entity>::value>
+    std::enable_if_t<std::is_same_v<Member, Entity>>
     update(Type &instance, Member Type:: *member) {
         instance.*member = map(instance.*member);
     }
 
     template<typename Type, typename Member>
-    std::enable_if_t<std::is_same<typename std::iterator_traits<typename Member::iterator>::value_type, Entity>::value>
+    std::enable_if_t<std::is_same_v<typename std::iterator_traits<typename Member::iterator>::value_type, Entity>>
     update(Type &instance, Member Type:: *member) {
         for(auto &entity: instance.*member) {
             entity = map(entity);
@@ -460,7 +460,7 @@ class ContinuousLoader final {
     }
 
     template<typename Other, typename Type, typename Member>
-    std::enable_if_t<!std::is_same<Other, Type>::value>
+    std::enable_if_t<!std::is_same_v<Other, Type>>
     update(Other &, Member Type:: *) {}
 
     template<typename Archive>

@@ -183,7 +183,7 @@ public:
 
     /*! @brief Default destructor. */
     virtual ~Emitter() ENTT_NOEXCEPT {
-        static_assert(std::is_base_of<Emitter<Derived>, Derived>::value, "!");
+        static_assert(std::is_base_of_v<Emitter<Derived>, Derived>, "!");
     }
 
     /*! @brief Copying an emitter isn't allowed. */

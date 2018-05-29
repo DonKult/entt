@@ -61,7 +61,7 @@ class Scheduler final {
 
         template<typename Proc, typename... Args>
         decltype(auto) then(Args &&... args) && {
-            static_assert(std::is_base_of<Process<Proc, Delta>, Proc>::value, "!");
+            static_assert(std::is_base_of_v<Process<Proc, Delta>, Proc>, "!");
             handler = Scheduler::then<Proc>(handler, std::forward<Args>(args)...);
             return std::move(*this);
         }
@@ -186,7 +186,7 @@ public:
      */
     template<typename Proc, typename... Args>
     auto attach(Args &&... args) {
-        static_assert(std::is_base_of<Process<Proc, Delta>, Proc>::value, "!");
+        static_assert(std::is_base_of_v<Process<Proc, Delta>, Proc>, "!");
 
         auto proc = typename ProcessHandler::instance_type{new Proc{std::forward<Args>(args)...}, &Scheduler::deleter<Proc>};
         ProcessHandler handler{std::move(proc), &Scheduler::update<Proc>, &Scheduler::abort<Proc>, nullptr};

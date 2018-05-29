@@ -94,7 +94,7 @@ public:
      */
     template<typename Loader, typename... Args>
     bool load(const resource_type id, Args &&... args) {
-        static_assert(std::is_base_of<ResourceLoader<Loader, Resource>, Loader>::value, "!");
+        static_assert(std::is_base_of_v<ResourceLoader<Loader, Resource>, Loader>, "!");
 
         bool loaded = true;
 
