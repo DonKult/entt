@@ -18,6 +18,7 @@ TEST(Delegate, Functionalities) {
 
     ASSERT_TRUE(ffdel.empty());
     ASSERT_TRUE(mfdel.empty());
+    ASSERT_EQ(ffdel, mfdel);
 
     ffdel.connect<&delegateFunction>();
     mfdel.connect<&DelegateFunctor::operator()>(&functor);
@@ -29,10 +30,12 @@ TEST(Delegate, Functionalities) {
     ASSERT_EQ(mfdel(3), 6);
 
     ffdel.reset();
-    mfdel.reset();
 
     ASSERT_TRUE(ffdel.empty());
     ASSERT_TRUE(mfdel.empty());
+
+    ASSERT_EQ(ffdel, entt::Delegate<int(int)>{});
+    ASSERT_NE(ffdel, mfdel);
 }
 
 TEST(Delegate, Comparison) {

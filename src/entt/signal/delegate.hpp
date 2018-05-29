@@ -68,7 +68,7 @@ public:
      * @tparam Function A valid free function pointer.
      */
     template<auto Function>
-    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Function), Args...>>
+    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Function), Args...>, void>
     connect() ENTT_NOEXCEPT {
         stub = std::make_pair(nullptr, &proto<Function>);
     }
@@ -85,7 +85,7 @@ public:
      * @param instance A valid instance of type pointer to `Class`.
      */
     template<auto Member, typename Class>
-    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Member), Class, Args...>>
+    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Member), Class, Args...>, void>
     connect(Class *instance) ENTT_NOEXCEPT {
         stub = std::make_pair(instance, &proto<Member>);
     }
