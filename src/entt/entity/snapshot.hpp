@@ -67,14 +67,10 @@ class Snapshot final {
 
         while(begin != last) {
             const auto entity = *(begin++);
-            using accumulator_type = std::size_t[];
-            accumulator_type accumulator = { (registry.template has<Component>(entity) ? ++size[Indexes] : size[Indexes])... };
-            (void)accumulator;
+            ((registry.template has<Component>(entity) ? ++size[Indexes] : size[Indexes]), ...);
         }
 
-        using accumulator_type = int[];
-        accumulator_type accumulator = { (get<Component>(archive, size[Indexes], first, last), 0)... };
-        (void)accumulator;
+        (get<Component>(archive, size[Indexes], first, last), ...);
     }
 
 public:
@@ -169,9 +165,7 @@ public:
     template<typename... Component, typename Archive>
     std::enable_if_t<(sizeof...(Component) > 1), const Snapshot &>
     component(Archive &archive) const {
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (component<Component>(archive), 0)... };
-        (void)accumulator;
+        (component<Component>(archive), ...);
         return *this;
     }
 
@@ -234,9 +228,7 @@ public:
     template<typename... Tag, typename Archive>
     std::enable_if_t<(sizeof...(Tag) > 1), const Snapshot &>
     tag(Archive &archive) const {
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (tag<Tag>(archive), 0)... };
-        (void)accumulator;
+        (tag<Tag>(archive), ...);
         return *this;
     }
 
@@ -359,9 +351,7 @@ public:
      */
     template<typename... Component, typename Archive>
     const SnapshotLoader & component(Archive &archive) const {
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (assign<Component>(archive), 0)... };
-        (void)accumulator;
+        (assign<Component>(archive), ...);
         return *this;
     }
 
@@ -380,9 +370,7 @@ public:
      */
     template<typename... Tag, typename Archive>
     const SnapshotLoader & tag(Archive &archive) const {
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (assign<Tag>(archive, tag_t{}), 0)... };
-        (void)accumulator;
+        (assign<Tag>(archive, tag_t{}), ...);
         return *this;
     }
 
@@ -506,14 +494,9 @@ class ContinuousLoader final {
         while(length--) {
             Entity entity{};
             Other instance{};
-
             archive(entity, instance);
             restore(entity);
-
-            using accumulator_type = int[];
-            accumulator_type accumulator = { 0, (update(instance, member), 0)... };
-            (void)accumulator;
-
+            (update(instance, member), ...);
             func(map(entity), instance);
         }
     }
@@ -597,9 +580,8 @@ public:
             registry.template accommodate<std::decay_t<decltype(component)>>(entity, component);
         };
 
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (reset<Component>(), assign<Component>(archive, apply, member...), 0)... };
-        (void)accumulator;
+        (reset<Component>(), ...);
+        (assign<Component>(archive, apply, member...), ...);
         return *this;
     }
 
@@ -628,9 +610,8 @@ public:
             registry.template assign<std::decay_t<decltype(tag)>>(tag_t{}, entity, tag);
         };
 
-        using accumulator_type = int[];
-        accumulator_type accumulator = { 0, (registry.template remove<Tag>(), assign<Tag>(archive, apply, member...), 0)... };
-        (void)accumulator;
+        (registry.template remove<Tag>(), ...);
+        (assign<Tag>(archive, apply, member...), ...);
         return *this;
     }
 

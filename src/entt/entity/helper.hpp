@@ -26,9 +26,7 @@ namespace entt {
  */
 template<typename Entity, typename... Component>
 void dependency(Registry<Entity> &registry, const Entity entity) {
-    using accumulator_type = int[];
-    accumulator_type accumulator = { ((registry.template has<Component>(entity) ? void() : (registry.template assign<Component>(entity), void())), 0)... };
-    (void)accumulator;
+    ((registry.template has<Component>(entity) ? void() : (registry.template assign<Component>(entity), void())), ...);
 }
 
 

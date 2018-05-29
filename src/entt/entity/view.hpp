@@ -573,9 +573,7 @@ class View final {
     unchecked_type unchecked(const view_type *view) const ENTT_NOEXCEPT {
         unchecked_type other{};
         std::size_t pos{};
-        using accumulator_type = const view_type *[];
-        accumulator_type accumulator = { (&pool<Component>() == view ? view : other[pos++] = &pool<Component>())... };
-        (void)accumulator;
+        ((&pool<Component>() == view ? nullptr : (other[pos++] = &pool<Component>())), ...);
         return other;
     }
 
@@ -881,9 +879,7 @@ public:
     template<typename Func>
     void each(Func func) const {
         const auto *view = candidate();
-        using accumulator_type = int[];
-        accumulator_type accumulator = { (&pool<Component>() == view ? (each(pool<Component>(), std::move(func), std::make_index_sequence<sizeof...(Component)-1>{}), 0) : 0)... };
-        (void)accumulator;
+        ((&pool<Component>() == view ? each(pool<Component>(), std::move(func), std::make_index_sequence<sizeof...(Component)-1>{}) : void()), ...);
     }
 
     /**
