@@ -20,7 +20,7 @@ TEST(Delegate, Functionalities) {
     ASSERT_TRUE(mfdel.empty());
 
     ffdel.connect<&delegateFunction>();
-    mfdel.connect<DelegateFunctor, &DelegateFunctor::operator()>(&functor);
+    mfdel.connect<&DelegateFunctor::operator()>(&functor);
 
     ASSERT_FALSE(ffdel.empty());
     ASSERT_FALSE(mfdel.empty());

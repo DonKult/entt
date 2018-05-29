@@ -3,6 +3,7 @@
 
 
 #include <utility>
+#include <type_traits>
 #include "../config/config.h"
 
 
@@ -37,22 +38,22 @@ class Delegate<Ret(Args...)> final {
     using proto_fn_type = Ret(void *, Args...);
     using stub_type = std::pair<void *, proto_fn_type *>;
 
-    template<Ret(*Function)(Args...)>
-    static Ret proto(void *, Args... args) {
-        return (Function)(args...);
-    }
+    template<typename Class>
+    static Class clazz(Ret(Class ::*)(Args...));
 
-    template<typename Class, Ret(Class:: *Member)(Args...)>
-    static Ret proto(void *instance, Args... args) {
-        return (static_cast<Class *>(instance)->*Member)(args...);
+    template<auto Member>
+    using instance_type = decltype(clazz(Member));
+
+    template<auto Function>
+    static Ret proto([[maybe_unused]] void *instance, Args... args) {
+        if constexpr(std::is_member_function_pointer_v<decltype(Function)>) {
+            return (static_cast<instance_type<Function> *>(instance)->*Function)(args...);
+        } else {
+            return (Function)(args...);
+        }
     }
 
 public:
-    /*! @brief Default constructor. */
-    Delegate() ENTT_NOEXCEPT
-        : stub{}
-    {}
-
     /**
      * @brief Checks whether a delegate actually stores a listener.
      * @return True if the delegate is empty, false otherwise.
@@ -66,8 +67,9 @@ public:
      * @brief Binds a free function to a delegate.
      * @tparam Function A valid free function pointer.
      */
-    template<Ret(*Function)(Args...)>
-    void connect() ENTT_NOEXCEPT {
+    template<auto Function>
+    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Function), Args...>>
+    connect() ENTT_NOEXCEPT {
         stub = std::make_pair(nullptr, &proto<Function>);
     }
 
@@ -78,13 +80,14 @@ public:
      * guarantee that the lifetime of the instance overcomes the one of the
      * delegate.
      *
-     * @tparam Class Type of class to which the member function belongs.
      * @tparam Member Member function to connect to the delegate.
+     * @tparam Class Type of class to which the member function belongs.
      * @param instance A valid instance of type pointer to `Class`.
      */
-    template<typename Class, Ret(Class:: *Member)(Args...)>
-    void connect(Class *instance) ENTT_NOEXCEPT {
-        stub = std::make_pair(instance, &proto<Class, Member>);
+    template<auto Member, typename Class>
+    std::enable_if_t<std::is_invocable_r_v<Ret, decltype(Member), Class, Args...>>
+    connect(Class *instance) ENTT_NOEXCEPT {
+        stub = std::make_pair(instance, &proto<Member>);
     }
 
     /**
@@ -93,11 +96,20 @@ public:
      * After a reset, a delegate can be safely invoked with no effect.
      */
     void reset() ENTT_NOEXCEPT {
-        stub.second = nullptr;
+        stub.second = proto_fn_type{};
     }
 
     /**
      * @brief Triggers a delegate.
+     *
+     * The delegate invokes the underlying function and returns the result.
+     *
+     * @warning
+     * Attempting to trigger an invalid delegate results in undefined
+     * behavior.<br/>
+     * An assertion will abort the execution at runtime in debug mode if the
+     * delegate has not yet been set.
+     *
      * @param args Arguments to use to invoke the underlying function.
      * @return The value returned by the underlying function.
      */
@@ -118,7 +130,7 @@ public:
     }
 
 private:
-    stub_type stub;
+    stub_type stub{};
 };
 
 

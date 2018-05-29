@@ -2452,7 +2452,7 @@ delegate.connect<&f>();
 
 // bind a member function to the delegate
 MyStruct instance;
-delegate.connect<MyStruct, &MyStruct::f>(&instance);
+delegate.connect<&MyStruct::f>(&instance);
 ```
 
 It hasn't a `disconnect` counterpart. Instead, there exists a `reset` member
