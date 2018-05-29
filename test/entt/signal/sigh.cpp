@@ -67,43 +67,43 @@ TEST(SigH, Comparison) {
     SigHListener s1;
     SigHListener s2;
 
-    sig1.sink().connect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::i>(&s2);
+    sig1.sink().connect<&SigHListener::i>(&s1);
+    sig2.sink().connect<&SigHListener::i>(&s2);
 
     ASSERT_FALSE(sig1 == sig2);
     ASSERT_TRUE(sig1 != sig2);
 
-    sig1.sink().disconnect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().disconnect<SigHListener, &SigHListener::i>(&s2);
+    sig1.sink().disconnect<&SigHListener::i>(&s1);
+    sig2.sink().disconnect<&SigHListener::i>(&s2);
 
-    sig1.sink().connect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::l>(&s1);
+    sig1.sink().connect<&SigHListener::i>(&s1);
+    sig2.sink().connect<&SigHListener::l>(&s1);
 
     ASSERT_FALSE(sig1 == sig2);
     ASSERT_TRUE(sig1 != sig2);
 
-    sig1.sink().disconnect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().disconnect<SigHListener, &SigHListener::l>(&s1);
+    sig1.sink().disconnect<&SigHListener::i>(&s1);
+    sig2.sink().disconnect<&SigHListener::l>(&s1);
 
     ASSERT_TRUE(sig1 == sig2);
     ASSERT_FALSE(sig1 != sig2);
 
-    sig1.sink().connect<SigHListener, &SigHListener::i>(&s1);
-    sig1.sink().connect<SigHListener, &SigHListener::l>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::l>(&s1);
+    sig1.sink().connect<&SigHListener::i>(&s1);
+    sig1.sink().connect<&SigHListener::l>(&s1);
+    sig2.sink().connect<&SigHListener::i>(&s1);
+    sig2.sink().connect<&SigHListener::l>(&s1);
 
     ASSERT_TRUE(sig1 == sig2);
 
-    sig1.sink().disconnect<SigHListener, &SigHListener::i>(&s1);
-    sig1.sink().disconnect<SigHListener, &SigHListener::l>(&s1);
-    sig2.sink().disconnect<SigHListener, &SigHListener::i>(&s1);
-    sig2.sink().disconnect<SigHListener, &SigHListener::l>(&s1);
+    sig1.sink().disconnect<&SigHListener::i>(&s1);
+    sig1.sink().disconnect<&SigHListener::l>(&s1);
+    sig2.sink().disconnect<&SigHListener::i>(&s1);
+    sig2.sink().disconnect<&SigHListener::l>(&s1);
 
-    sig1.sink().connect<SigHListener, &SigHListener::i>(&s1);
-    sig1.sink().connect<SigHListener, &SigHListener::l>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::l>(&s1);
-    sig2.sink().connect<SigHListener, &SigHListener::i>(&s1);
+    sig1.sink().connect<&SigHListener::i>(&s1);
+    sig1.sink().connect<&SigHListener::l>(&s1);
+    sig2.sink().connect<&SigHListener::l>(&s1);
+    sig2.sink().connect<&SigHListener::i>(&s1);
 
     ASSERT_FALSE(sig1 == sig2);
 }
@@ -161,22 +161,22 @@ TEST(SigH, Members) {
     SigHListener *ptr = &s;
     entt::SigH<bool(int)> sigh;
 
-    sigh.sink().connect<SigHListener, &SigHListener::g>(ptr);
+    sigh.sink().connect<&SigHListener::g>(ptr);
     sigh.publish(42);
 
     ASSERT_TRUE(s.k);
     ASSERT_FALSE(sigh.empty());
     ASSERT_EQ((entt::SigH<bool(int)>::size_type)1, sigh.size());
 
-    sigh.sink().disconnect<SigHListener, &SigHListener::g>(ptr);
+    sigh.sink().disconnect<&SigHListener::g>(ptr);
     sigh.publish(42);
 
     ASSERT_TRUE(s.k);
     ASSERT_TRUE(sigh.empty());
     ASSERT_EQ((entt::SigH<bool(int)>::size_type)0, sigh.size());
 
-    sigh.sink().connect<SigHListener, &SigHListener::g>(ptr);
-    sigh.sink().connect<SigHListener, &SigHListener::h>(ptr);
+    sigh.sink().connect<&SigHListener::g>(ptr);
+    sigh.sink().connect<&SigHListener::h>(ptr);
 
     ASSERT_FALSE(sigh.empty());
     ASSERT_EQ((entt::SigH<bool(int)>::size_type)2, sigh.size());
