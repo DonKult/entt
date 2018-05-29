@@ -3,6 +3,7 @@
 
 
 #include <utility>
+#include <functional>
 #include <type_traits>
 #include "../config/config.h"
 
@@ -47,9 +48,9 @@ class Delegate<Ret(Args...)> final {
     template<auto Function>
     static Ret proto([[maybe_unused]] void *instance, Args... args) {
         if constexpr(std::is_member_function_pointer_v<decltype(Function)>) {
-            return (static_cast<instance_type<Function> *>(instance)->*Function)(args...);
+            return std::invoke(Function, static_cast<instance_type<Function> *>(instance), args...);
         } else {
-            return (Function)(args...);
+            return std::invoke(Function, args...);
         }
     }
 

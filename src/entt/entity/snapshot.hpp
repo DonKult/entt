@@ -287,7 +287,7 @@ class SnapshotLoader final {
             archive(entity, instance);
             static constexpr auto destroyed = false;
             assure_fn(registry, entity, destroyed);
-            registry.template assign<Type>(args..., entity, static_cast<const Type &>(instance));
+            registry.template assign<Type>(args..., entity, std::as_const(instance));
         }
     }
 
