@@ -172,7 +172,7 @@ public:
 
     /*! @brief Default destructor. */
     virtual ~Process() ENTT_NOEXCEPT {
-        static_assert(std::is_base_of_v<Process, Derived>, "!");
+        static_assert(std::is_base_of_v<Process, Derived>);
     }
 
     /**

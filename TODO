@@ -8,5 +8,4 @@
 * ease the assignment of tags as string (type-less assign member function + user defined literal for hashed strings)
 * family -> std::uint32_t (or some other fixed and known size type)
 * work stealing job system (see #100)
-* C++17. That's all.
 * AOB
