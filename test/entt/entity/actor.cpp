@@ -8,7 +8,7 @@ struct ActorTag final {};
 
 TEST(Actor, Component) {
     entt::DefaultRegistry registry;
-    entt::DefaultActor actor{registry};
+    entt::Actor actor{registry};
     const auto &cactor = actor;
 
     ASSERT_EQ(&registry, &actor.registry());
@@ -34,7 +34,7 @@ TEST(Actor, Component) {
 
 TEST(Actor, Tag) {
     entt::DefaultRegistry registry;
-    entt::DefaultActor actor{registry};
+    entt::Actor actor{registry};
     const auto &cactor = actor;
 
     ASSERT_EQ(&registry, &actor.registry());
@@ -59,7 +59,7 @@ TEST(Actor, Tag) {
 
 TEST(Actor, EntityLifetime) {
     entt::DefaultRegistry registry;
-    auto *actor = new entt::DefaultActor{registry};
+    auto *actor = new entt::Actor{registry};
     actor->assign<ActorComponent>();
 
     ASSERT_FALSE(registry.empty<ActorComponent>());
