@@ -514,7 +514,7 @@ public:
      *
      * @param other The sparse sets that imposes the order of the entities.
      */
-    void respect(const SparseSet<Entity> &other) ENTT_NOEXCEPT {
+    void respect(const SparseSet &other) ENTT_NOEXCEPT {
         auto from = other.cbegin();
         auto to = other.cend();
 
