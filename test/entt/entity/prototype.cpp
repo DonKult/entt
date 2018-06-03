@@ -4,7 +4,7 @@
 
 TEST(Prototype, SameRegistry) {
     entt::DefaultRegistry registry;
-    entt::DefaultPrototype prototype{registry};
+    entt::Prototype prototype{registry};
     const auto &cprototype = prototype;
 
     ASSERT_FALSE(registry.empty());
@@ -64,7 +64,7 @@ TEST(Prototype, SameRegistry) {
 TEST(Prototype, OtherRegistry) {
     entt::DefaultRegistry registry;
     entt::DefaultRegistry repository;
-    entt::DefaultPrototype prototype{repository};
+    entt::Prototype prototype{repository};
     const auto &cprototype = prototype;
 
     ASSERT_TRUE(registry.empty());
@@ -125,7 +125,7 @@ TEST(Prototype, RAII) {
     entt::DefaultRegistry registry;
 
     {
-        entt::DefaultPrototype prototype{registry};
+        entt::Prototype prototype{registry};
         prototype.set<int>(0);
 
         ASSERT_FALSE(registry.empty());
@@ -137,7 +137,7 @@ TEST(Prototype, RAII) {
 TEST(Prototype, MoveConstructionAssignment) {
     entt::DefaultRegistry registry;
 
-    entt::DefaultPrototype prototype{registry};
+    entt::Prototype prototype{registry};
     prototype.set<int>(0);
     auto other{std::move(prototype)};
     const auto e0 = other();

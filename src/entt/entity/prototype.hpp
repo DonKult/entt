@@ -480,16 +480,6 @@ private:
 };
 
 
-/**
- * @brief Default prototype
- *
- * The default prototype is the best choice for almost all the
- * applications.<br/>
- * Users should have a really good reason to choose something different.
- */
-using DefaultPrototype = Prototype<DefaultRegistry::entity_type>;
-
-
 }
 
 
