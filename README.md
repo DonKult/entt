@@ -256,7 +256,7 @@ open an issue to discuss your idea.
 ## Requirements
 
 To be able to use `EnTT`, users must provide a full-featured compiler that
-supports at least C++14.<br/>
+supports at least C++17.<br/>
 The requirements below are mandatory to compile the tests and to extract the
 documentation:
 
