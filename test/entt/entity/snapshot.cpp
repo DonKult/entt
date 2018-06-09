@@ -12,9 +12,7 @@ struct OutputArchive {
 
     template<typename... Value>
     void operator()(const Value &... value) {
-        using accumulator_type = int[];
-        accumulator_type accumulator = { (std::get<std::queue<Value>>(storage).push(value), 0)... };
-        (void)accumulator;
+        (std::get<std::queue<Value>>(storage).push(value), ...);
     }
 
 private:
@@ -35,9 +33,7 @@ struct InputArchive {
             queue.pop();
         };
 
-        using accumulator_type = int[];
-        accumulator_type accumulator = { (assign(value), 0)... };
-        (void)accumulator;
+        (assign(value), ...);
     }
 
 private:

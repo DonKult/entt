@@ -155,15 +155,13 @@ class DuktapeRegistry {
 
     template<typename... Comp>
     void reg() {
-        using accumulator_type = int[];
-        accumulator_type acc = { (func[registry.type<Comp>()] = {
-                                     &::set<Comp>,
-                                     &::unset<Comp>,
-                                     &::has<Comp>,
-                                     &::get<Comp>,
-                                     &entt::DefaultRegistry::has<Comp>
-                                 }, 0)... };
-        (void)acc;
+        ((func[registry.type<Comp>()] = {
+                &::set<Comp>,
+                &::unset<Comp>,
+                &::has<Comp>,
+                &::get<Comp>,
+                &entt::DefaultRegistry::has<Comp>
+        }), ...);
     }
 
     static DuktapeRegistry & instance(duk_context *ctx) {
