@@ -12,34 +12,6 @@
 namespace entt {
 
 
-namespace internal {
-
-
-/**
- * @cond TURN_OFF_DOXYGEN
- * Internal details not to be documented.
- */
-
-
-template<typename...>
-struct IsPartOf;
-
-template<typename Type, typename Current, typename... Other>
-struct IsPartOf<Type, Current, Other...>: std::conditional_t<std::is_same<Type, Current>::value, std::true_type, IsPartOf<Type, Other...>> {};
-
-template<typename Type>
-struct IsPartOf<Type>: std::false_type {};
-
-
-/**
- * Internal details not to be documented.
- * @endcond TURN_OFF_DOXYGEN
- */
-
-
-}
-
-
 /**
  * @brief Types identifiers.
  *
@@ -73,13 +45,8 @@ class Identifier final {
 
     template<typename Type, std::size_t... Indexes>
     static constexpr std::size_t get(std::index_sequence<Indexes...>) ENTT_NOEXCEPT {
-        static_assert(internal::IsPartOf<Type, Types...>::value, "!");
-
-        std::size_t max{};
-        using accumulator_type = std::size_t[];
-        accumulator_type accumulator = { (max = std::is_same<Type, std::tuple_element_t<Indexes, tuple_type>>::value ? Indexes : max)... };
-        (void)accumulator;
-        return max;
+        static_assert(std::disjunction_v<std::is_same<Type, Types>...>);
+        return (0 + ... + (std::is_same_v<Type, std::tuple_element_t<Indexes, tuple_type>> ? Indexes : std::size_t{}));
     }
 
 public:
