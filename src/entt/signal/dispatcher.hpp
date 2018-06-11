@@ -22,10 +22,8 @@ namespace entt {
  * A dispatcher can be used either to trigger an immediate event or to enqueue
  * events to be published all together once per tick.<br/>
  * Listeners are provided in the form of member functions. For each event of
- * type `Event`, listeners must have the following function type:
- * @code{.cpp}
- * void(const Event &)
- * @endcode
+ * type `Event`, listeners are such that they can be invoked with an argument of
+ * type `const Event &`, no matter what the return type is.
  *
  * Member functions named `receive` are automatically detected and registered or
  * unregistered by the dispatcher. The type of the instances is `Class *` (a

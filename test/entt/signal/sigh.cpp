@@ -7,7 +7,7 @@ struct SigHListener {
     static void f(int &v) { v = 42; }
 
     bool g(int) { k = !k; return true; }
-    bool h(int) { return k; }
+    bool h(const int &) { return k; }
 
     void i() {}
     void l() {}

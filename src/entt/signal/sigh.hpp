@@ -137,8 +137,8 @@ class Sink<Ret(Args...)> final {
     using proto_fn_type = Ret(void *, Args...);
     using call_type = std::pair<void *, proto_fn_type *>;
 
-    template<typename Class>
-    static Class clazz(Ret(Class ::*)(Args...));
+    template<typename Class, typename R, typename... A>
+    static Class clazz(R(Class ::*)(A...));
 
     template<auto Member>
     using instance_type = decltype(clazz(Member));

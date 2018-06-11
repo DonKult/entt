@@ -653,7 +653,8 @@ registry.construction<Position>().disconnect<&MyClass::member>(&instance);
 To be notified when components are destroyed, use the `destruction` member
 function instead.
 
-The function type of a listener is the same in both cases:
+The function type of a listener is the same in both cases and should be
+equivalent to:
 
 ```cpp
 void(Registry<Entity> &, Entity);
@@ -2347,7 +2348,7 @@ listeners in all their forms by means of a sink:
 void foo(int, char) { /* ... */ }
 
 struct S {
-    void bar(int, char) { /* ... */ }
+    void bar(const int &, char) { /* ... */ }
 };
 
 // ...
@@ -2371,6 +2372,10 @@ signal.sink().disconnect(&instance);
 // discards all the listeners at once
 signal.sink().disconnect();
 ```
+
+As shown above, listeners do not have to strictly follow the signature of the
+signal. As long as a listener can be invoked with the given arguments to yield a
+result that is convertible to the given result type, everything works just fine.
 
 Once listeners are attached (or even if there are no listeners at all), events
 and data in general can be published through a signal by means of the `publish`
@@ -2444,7 +2449,7 @@ There exist two functions to do that, both named `connect`:
 int f(int i) { return i; }
 
 struct MyStruct {
-    int f(int i) { return i }
+    int f(const int &i) { return i }
 };
 
 // bind a free function to the delegate
@@ -2470,6 +2475,11 @@ usual:
 auto ret = delegate(42);
 ```
 
+As shown above, listeners do not have to strictly follow the signature of the
+delegate. As long as a listener can be invoked with the given arguments to yield
+a result that is convertible to the given result type, everything works just
+fine.
+
 Probably too much small and pretty poor of functionalities, but the delegate
 class can help in a lot of cases and it has shown that it is worth keeping it
 within the framework.
@@ -2488,8 +2498,9 @@ entt::Dispatcher dispatcher{};
 ```
 
 In order to register an instance of a class to a dispatcher, its type must
-expose one or more member functions of which the return types are `void` and the
-argument lists are `const E &`, for each type of event `E`.<br/>
+expose one or more member functions the arguments of which are such that
+`const E &` can be converted to them for each type of event `E`, no matter what
+the return value is.<br/>
 To ease the development, member functions that are named `receive` are
 automatically detected and have not to be explicitly specified when registered.
 In all the other cases, the name of the member function aimed to receive the

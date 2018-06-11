@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <entt/signal/delegate.hpp>
 
-int delegateFunction(int i) {
+int delegateFunction(const int &i) {
     return i*i;
 }
 
