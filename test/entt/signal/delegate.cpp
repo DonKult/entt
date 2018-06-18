@@ -32,7 +32,7 @@ TEST(Delegate, Functionalities) {
     ffdel.reset();
 
     ASSERT_TRUE(ffdel.empty());
-    ASSERT_TRUE(mfdel.empty());
+    ASSERT_FALSE(mfdel.empty());
 
     ASSERT_EQ(ffdel, entt::Delegate<int(int)>{});
     ASSERT_NE(ffdel, mfdel);
