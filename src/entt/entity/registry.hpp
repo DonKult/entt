@@ -669,7 +669,7 @@ public:
     template<typename... Component>
     bool has(const entity_type entity) const ENTT_NOEXCEPT {
         assert(valid(entity));
-        return ((managed<Component>() && pool<Component>().has(entity)) && ...);
+        return (true && ... && (managed<Component>() && pool<Component>().has(entity)));
     }
 
     /**
@@ -717,22 +717,19 @@ public:
      * invalid entity or if the entity doesn't own an instance of the given
      * component.
      *
-     * @tparam Component Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Component Types of components to get.
      * @param entity A valid entity identifier.
      * @return References to the components owned by the entity.
      */
-    template<typename Component, typename... Other>
-    std::conditional_t<sizeof...(Other), std::tuple<const Component &, const Other &...>, const Component &>
-    get(const entity_type entity) const ENTT_NOEXCEPT {
+    template<typename... Component>
+    decltype(auto) get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
         assert(valid(entity));
-        assert(managed<Component>());
-        (assert(managed<Other>()), ...);
+        (assert(managed<Component>()), ...);
 
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<const Component &, const Other &...>{get<Component>(entity), get<Other>(entity)...};
+        if constexpr(sizeof...(Component) == 1) {
+            return pool<Component...>().get(entity);
         } else {
-            return pool<Component>().get(entity);
+            return std::tuple<const Component &...>{get<Component>(entity)...};
         }
     }
 
@@ -746,18 +743,16 @@ public:
      * invalid entity or if the entity doesn't own an instance of the given
      * component.
      *
-     * @tparam Component Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Component Types of components to get.
      * @param entity A valid entity identifier.
      * @return References to the components owned by the entity.
      */
-    template<typename Component, typename... Other>
-    inline std::conditional_t<sizeof...(Other), std::tuple<Component &, Other &...>, Component &>
-    get(const entity_type entity) ENTT_NOEXCEPT {
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<Component &, Other &...>{get<Component>(entity), get<Other>(entity)...};
+    template<typename... Component>
+    inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
+        if constexpr(sizeof...(Component) == 1) {
+            return (const_cast<Component &>(const_cast<const Registry *>(this)->get<Component>(entity)), ...);
         } else {
-            return const_cast<Component &>(const_cast<const Registry *>(this)->get<Component>(entity));
+            return std::tuple<Component &...>{get<Component>(entity)...};
         }
     }
 

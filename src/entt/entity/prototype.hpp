@@ -177,17 +177,16 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * prototype doesn't own an instance of the given component.
      *
-     * @tparam Component Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Component Types of components to get.
      * @return References to the components owned by the prototype.
      */
-    template<typename Component, typename... Other>
-    std::conditional_t<sizeof...(Other), std::tuple<const Component &, const Other &...>, const Component &>
-    get() const ENTT_NOEXCEPT {
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<const Component &, const Other &...>{get<Component>(), get<Other>()...};
+    template<typename... Component>
+    decltype(auto) get() const ENTT_NOEXCEPT {
+        if constexpr(sizeof...(Component) == 1) {
+            auto ident = [](const auto &component) -> decltype(auto) { return component; };
+            return (ident(registry->template get<Wrapper<Component>>(entity).component), ...);
         } else {
-            return registry->template get<Wrapper<Component>>(entity).component;
+            return std::tuple<const Component &...>{get<Component>()...};
         }
     }
 
@@ -200,17 +199,15 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * prototype doesn't own an instance of the given component.
      *
-     * @tparam Component Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Component Types of components to get.
      * @return References to the components owned by the prototype.
      */
-    template<typename Component, typename... Other>
-    inline std::conditional_t<sizeof...(Other), std::tuple<Component &, Other &...>, Component &>
-    get() ENTT_NOEXCEPT {
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<Component &, Other &...>{get<Component>(), get<Other>()...};
+    template<typename... Component>
+    inline decltype(auto) get() ENTT_NOEXCEPT {
+        if constexpr(sizeof...(Component) == 1) {
+            return (const_cast<Component &>(const_cast<const Prototype *>(this)->get<Component>()), ...);
         } else {
-            return const_cast<Component &>(const_cast<const Prototype *>(this)->get<Component>());
+            return std::tuple<Component &...>{get<Component>()...};
         }
     }
 

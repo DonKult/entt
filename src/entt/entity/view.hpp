@@ -268,20 +268,18 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Comp Types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename Comp, typename... Other>
-    std::conditional_t<sizeof...(Other), std::tuple<const Comp &, const Other &...>, const Comp &>
-    get(const entity_type entity) const ENTT_NOEXCEPT {
+    template<typename... Comp>
+    decltype(auto) get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
         assert(contains(entity));
 
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<const Comp &, const Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        if constexpr(sizeof...(Comp) == 1) {
+            return (std::get<pool_type<Comp> &>(pools).get(entity), ...);
         } else {
-            return std::get<pool_type<Comp> &>(pools).get(entity);
+            return std::tuple<const Comp &...>{get<Comp>(entity)...};
         }
     }
 
@@ -298,18 +296,16 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Comp Types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename Comp, typename... Other>
-    inline std::conditional_t<sizeof...(Other), std::tuple<Comp &, Other &...>, Comp &>
-    get(const entity_type entity) ENTT_NOEXCEPT {
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<Comp &, Other &...>{get<Comp>(entity), get<Other>(entity)...};
+    template<typename... Comp>
+    inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
+        if constexpr(sizeof...(Comp) == 1) {
+            return (const_cast<Comp &>(const_cast<const PersistentView *>(this)->get<Comp>(entity)), ...);
         } else {
-            return const_cast<Comp &>(const_cast<const PersistentView *>(this)->get<Comp>(entity));
+            return std::tuple<Comp &...>{get<Comp>(entity)...};
         }
     }
 
@@ -746,20 +742,18 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Comp Types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename Comp, typename... Other>
-    std::conditional_t<sizeof...(Other), std::tuple<const Comp &, const Other &...>, const Comp &>
-    get(const entity_type entity) const ENTT_NOEXCEPT {
+    template<typename... Comp>
+    decltype(auto) get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
         assert(contains(entity));
 
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<const Comp &, const Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        if constexpr(sizeof...(Comp) == 1) {
+            return (pool<Comp>().get(entity), ...);
         } else {
-            return pool<Comp>().get(entity);
+            return std::tuple<const Comp &...>{get<Comp>(entity)...};
         }
     }
 
@@ -776,18 +770,16 @@ public:
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Type of component to get.
-     * @tparam Other Other types of components to get.
+     * @tparam Comp Types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename Comp, typename... Other>
-    inline std::conditional_t<sizeof...(Other), std::tuple<Comp &, Other &...>, Comp &>
-    get(const entity_type entity) ENTT_NOEXCEPT {
-        if constexpr(sizeof...(Other)) {
-            return std::tuple<Comp &, Other &...>{get<Comp>(entity), get<Other>(entity)...};
+    template<typename... Comp>
+    inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
+        if constexpr(sizeof...(Comp) == 1) {
+            return (const_cast<Comp &>(const_cast<const View *>(this)->get<Comp>(entity)), ...);
         } else {
-            return const_cast<Comp &>(const_cast<const View *>(this)->get<Comp>(entity));
+            return std::tuple<Comp &...>{get<Comp>(entity)...};
         }
     }
 
