@@ -303,7 +303,7 @@ public:
     template<typename... Comp>
     inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
         if constexpr(sizeof...(Comp) == 1) {
-            return (const_cast<Comp &>(const_cast<const PersistentView *>(this)->get<Comp>(entity)), ...);
+            return (const_cast<Comp &>(std::as_const(*this).template get<Comp>(entity)), ...);
         } else {
             return std::tuple<Comp &...>{get<Comp>(entity)...};
         }
@@ -350,7 +350,7 @@ public:
      */
     template<typename Func>
     inline void each(Func func) {
-        const_cast<const PersistentView *>(this)->each([&func](const entity_type entity, const Component &... component) {
+        std::as_const(*this).each([&func](const entity_type entity, const Component &... component) {
             func(entity, const_cast<Component &>(component)...);
         });
     }
@@ -777,7 +777,7 @@ public:
     template<typename... Comp>
     inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
         if constexpr(sizeof...(Comp) == 1) {
-            return (const_cast<Comp &>(const_cast<const View *>(this)->get<Comp>(entity)), ...);
+            return (const_cast<Comp &>(std::as_const(*this).template get<Comp>(entity)), ...);
         } else {
             return std::tuple<Comp &...>{get<Comp>(entity)...};
         }
@@ -823,7 +823,7 @@ public:
      */
     template<typename Func>
     inline void each(Func func) {
-        const_cast<const View *>(this)->each([&func](const entity_type entity, const Component &... component) {
+        std::as_const(*this).each([&func](const entity_type entity, const Component &... component) {
             func(entity, const_cast<Component &>(component)...);
         });
     }
@@ -940,7 +940,7 @@ public:
      * @return A pointer to the array of components.
      */
     inline raw_type * raw() ENTT_NOEXCEPT {
-        return const_cast<raw_type *>(const_cast<const View *>(this)->raw());
+        return const_cast<raw_type *>(std::as_const(*this).raw());
     }
 
     /**
@@ -1124,7 +1124,7 @@ public:
      * @return The component assigned to the entity.
      */
     inline Component & get(const entity_type entity) ENTT_NOEXCEPT {
-        return const_cast<Component &>(const_cast<const View *>(this)->get(entity));
+        return const_cast<Component &>(std::as_const(*this).get(entity));
     }
 
     /**
@@ -1166,7 +1166,7 @@ public:
      */
     template<typename Func>
     inline void each(Func func) {
-        const_cast<const View *>(this)->each([&func](const entity_type entity, const Component &component) {
+        std::as_const(*this).each([&func](const entity_type entity, const Component &component) {
             func(entity, const_cast<Component &>(component));
         });
     }
@@ -1283,7 +1283,7 @@ public:
      * @return A pointer to the array of components.
      */
     inline raw_type * raw() ENTT_NOEXCEPT {
-        return const_cast<raw_type *>(const_cast<const RawView *>(this)->raw());
+        return const_cast<raw_type *>(std::as_const(*this).raw());
     }
 
     /**
@@ -1422,7 +1422,7 @@ public:
      * @return A reference to the requested element.
      */
     inline raw_type & operator[](const size_type pos) ENTT_NOEXCEPT {
-        return const_cast<raw_type &>(const_cast<const RawView *>(this)->operator[](pos));
+        return const_cast<raw_type &>(std::as_const(*this).operator[](pos));
     }
 
     /**

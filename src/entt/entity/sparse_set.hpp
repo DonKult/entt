@@ -872,7 +872,7 @@ public:
      * @return A reference to the requested element.
      */
     inline object_type & operator[](const size_type pos) ENTT_NOEXCEPT {
-        return const_cast<object_type &>(const_cast<const SparseSet *>(this)->operator[](pos));
+        return const_cast<object_type &>(std::as_const(*this).operator[](pos));
     }
 
     /**
@@ -904,7 +904,7 @@ public:
      * @return The object associated to the entity.
      */
     inline object_type & get(const entity_type entity) ENTT_NOEXCEPT {
-        return const_cast<object_type &>(const_cast<const SparseSet *>(this)->get(entity));
+        return const_cast<object_type &>(std::as_const(*this).get(entity));
     }
 
     /**
@@ -1006,7 +1006,7 @@ public:
         std::iota(copy.begin(), copy.end(), 0);
 
         sort(copy.begin(), copy.end(), [this, compare = std::move(compare)](const auto lhs, const auto rhs) {
-            return compare(const_cast<const object_type &>(instances[rhs]), const_cast<const object_type &>(instances[lhs]));
+            return compare(std::as_const(instances[rhs]), std::as_const(instances[lhs]));
         }, std::forward<Args>(args)...);
 
         for(size_type pos = 0, last = copy.size(); pos < last; ++pos) {

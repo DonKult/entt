@@ -87,7 +87,7 @@ class Registry {
 
     template<typename Component>
     inline SparseSet<Entity, Component> & pool() ENTT_NOEXCEPT {
-        return const_cast<SparseSet<Entity, Component> &>(const_cast<const Registry *>(this)->pool<Component>());
+        return const_cast<SparseSet<Entity, Component> &>(std::as_const(*this).template pool<Component>());
     }
 
     template<typename Component>
@@ -298,7 +298,7 @@ public:
      */
     template<typename Component>
     inline Component * raw() ENTT_NOEXCEPT {
-        return const_cast<Component *>(const_cast<const Registry *>(this)->raw<Component>());
+        return const_cast<Component *>(std::as_const(*this).template raw<Component>());
     }
 
     /**
@@ -704,7 +704,7 @@ public:
      */
     template<typename Tag>
     inline Tag & get() ENTT_NOEXCEPT {
-        return const_cast<Tag &>(const_cast<const Registry *>(this)->get<Tag>());
+        return const_cast<Tag &>(std::as_const(*this).template get<Tag>());
     }
 
     /**
@@ -750,7 +750,7 @@ public:
     template<typename... Component>
     inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
-            return (const_cast<Component &>(const_cast<const Registry *>(this)->get<Component>(entity)), ...);
+            return (const_cast<Component &>(std::as_const(*this).template get<Component>(entity)), ...);
         } else {
             return std::tuple<Component &...>{get<Component>(entity)...};
         }

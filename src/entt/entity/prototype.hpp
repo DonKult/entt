@@ -205,7 +205,7 @@ public:
     template<typename... Component>
     inline decltype(auto) get() ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
-            return (const_cast<Component &>(const_cast<const Prototype *>(this)->get<Component>()), ...);
+            return (const_cast<Component &>(std::as_const(*this).template get<Component>()), ...);
         } else {
             return std::tuple<Component &...>{get<Component>()...};
         }
