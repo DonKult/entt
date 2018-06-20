@@ -169,7 +169,7 @@ public:
     }
 
     /**
-     * @brief Returns a reference to the given component.
+     * @brief Returns references to the given components.
      *
      * @warning
      * Attempting to get a component from a prototype that doesn't own it
@@ -178,64 +178,40 @@ public:
      * prototype doesn't own an instance of the given component.
      *
      * @tparam Component Type of component to get.
-     * @return A reference to the component owned by the prototype.
-     */
-    template<typename Component>
-    const Component & get() const ENTT_NOEXCEPT {
-        return registry->template get<Wrapper<Component>>(entity).component;
-    }
-
-    /**
-     * @brief Returns a reference to the given component.
-     *
-     * @warning
-     * Attempting to get a component from a prototype that doesn't own it
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * prototype doesn't own an instance of the given component.
-     *
-     * @tparam Component Type of component to get.
-     * @return A reference to the component owned by the prototype.
-     */
-    template<typename Component>
-    inline Component & get() ENTT_NOEXCEPT {
-        return const_cast<Component &>(const_cast<const Prototype *>(this)->get<Component>());
-    }
-
-    /**
-     * @brief Returns a reference to the given components.
-     *
-     * @warning
-     * Attempting to get components from a prototype that doesn't own them
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * prototype doesn't own instances of the given components.
-     *
-     * @tparam Component Type of components to get.
+     * @tparam Other Other types of components to get.
      * @return References to the components owned by the prototype.
      */
-    template<typename... Component>
-    inline std::enable_if_t<(sizeof...(Component) > 1), std::tuple<const Component &...>>
+    template<typename Component, typename... Other>
+    std::conditional_t<sizeof...(Other), std::tuple<const Component &, const Other &...>, const Component &>
     get() const ENTT_NOEXCEPT {
-        return std::tuple<const Component &...>{get<Component>()...};
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<const Component &, const Other &...>{get<Component>(), get<Other>()...};
+        } else {
+            return registry->template get<Wrapper<Component>>(entity).component;
+        }
     }
 
     /**
-     * @brief Returns a reference to the given components.
+     * @brief Returns references to the given components.
      *
      * @warning
-     * Attempting to get components from a prototype that doesn't own them
+     * Attempting to get a component from a prototype that doesn't own it
      * results in undefined behavior.<br/>
      * An assertion will abort the execution at runtime in debug mode if the
-     * prototype doesn't own instances of the given components.
+     * prototype doesn't own an instance of the given component.
      *
-     * @tparam Component Type of components to get.
+     * @tparam Component Type of component to get.
+     * @tparam Other Other types of components to get.
      * @return References to the components owned by the prototype.
      */
-    template<typename... Component>
-    inline std::enable_if_t<(sizeof...(Component) > 1), std::tuple<Component &...>>
+    template<typename Component, typename... Other>
+    inline std::conditional_t<sizeof...(Other), std::tuple<Component &, Other &...>, Component &>
     get() ENTT_NOEXCEPT {
-        return std::tuple<Component &...>{get<Component>()...};
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<Component &, Other &...>{get<Component>(), get<Other>()...};
+        } else {
+            return const_cast<Component &>(const_cast<const Prototype *>(this)->get<Component>());
+        }
     }
 
     /**

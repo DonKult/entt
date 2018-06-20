@@ -256,72 +256,33 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
-     *
-     * Prefer this function instead of `Registry::get` during iterations. It has
-     * far better performance than its companion function.
-     *
-     * @warning
-     * Attempting to use an invalid component type results in a compilation
-     * error. Attempting to use an entity that doesn't belong to the view
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * view doesn't contain the given entity.
-     *
-     * @tparam Comp Type of component to get.
-     * @param entity A valid entity identifier.
-     * @return The component assigned to the entity.
-     */
-    template<typename Comp>
-    const Comp & get(const entity_type entity) const ENTT_NOEXCEPT {
-        assert(contains(entity));
-        return std::get<pool_type<Comp> &>(pools).get(entity);
-    }
-
-    /**
-     * @brief Returns the component assigned to the given entity.
-     *
-     * Prefer this function instead of `Registry::get` during iterations. It has
-     * far better performance than its companion function.
-     *
-     * @warning
-     * Attempting to use an invalid component type results in a compilation
-     * error. Attempting to use an entity that doesn't belong to the view
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * view doesn't contain the given entity.
-     *
-     * @tparam Comp Type of component to get.
-     * @param entity A valid entity identifier.
-     * @return The component assigned to the entity.
-     */
-    template<typename Comp>
-    inline Comp & get(const entity_type entity) ENTT_NOEXCEPT {
-        return const_cast<Comp &>(const_cast<const PersistentView *>(this)->get<Comp>(entity));
-    }
-
-    /**
      * @brief Returns the components assigned to the given entity.
      *
      * Prefer this function instead of `Registry::get` during iterations. It has
      * far better performance than its companion function.
      *
      * @warning
-     * Attempting to use invalid component types results in a compilation error.
-     * Attempting to use an entity that doesn't belong to the view results in
-     * undefined behavior.<br/>
+     * Attempting to use an invalid component type results in a compilation
+     * error. Attempting to use an entity that doesn't belong to the view
+     * results in undefined behavior.<br/>
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Types of the components to get.
+     * @tparam Comp Type of component to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename... Comp>
-    inline std::enable_if_t<(sizeof...(Comp) > 1), std::tuple<const Comp &...>>
+    template<typename Comp, typename... Other>
+    std::conditional_t<sizeof...(Other), std::tuple<const Comp &, const Other &...>, const Comp &>
     get(const entity_type entity) const ENTT_NOEXCEPT {
         assert(contains(entity));
-        return std::tuple<const Comp &...>{get<Comp>(entity)...};
+
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<const Comp &, const Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        } else {
+            return std::get<pool_type<Comp> &>(pools).get(entity);
+        }
     }
 
     /**
@@ -331,21 +292,25 @@ public:
      * far better performance than its companion function.
      *
      * @warning
-     * Attempting to use invalid component types results in a compilation error.
-     * Attempting to use an entity that doesn't belong to the view results in
-     * undefined behavior.<br/>
+     * Attempting to use an invalid component type results in a compilation
+     * error. Attempting to use an entity that doesn't belong to the view
+     * results in undefined behavior.<br/>
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Types of the components to get.
+     * @tparam Comp Type of component to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename... Comp>
-    inline std::enable_if_t<(sizeof...(Comp) > 1), std::tuple<Comp &...>>
+    template<typename Comp, typename... Other>
+    inline std::conditional_t<sizeof...(Other), std::tuple<Comp &, Other &...>, Comp &>
     get(const entity_type entity) ENTT_NOEXCEPT {
-        assert(contains(entity));
-        return std::tuple<Comp &...>{get<Comp>(entity)...};
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<Comp &, Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        } else {
+            return const_cast<Comp &>(const_cast<const PersistentView *>(this)->get<Comp>(entity));
+        }
     }
 
     /**
@@ -578,12 +543,13 @@ class View final {
     }
 
     template<typename Comp, typename Other>
-    inline std::enable_if_t<std::is_same_v<Comp, Other>, const Other &>
-    get(const component_iterator_type<Comp> &it, const Entity) const ENTT_NOEXCEPT { return *it; }
-
-    template<typename Comp, typename Other>
-    inline std::enable_if_t<!std::is_same_v<Comp, Other>, const Other &>
-    get(const component_iterator_type<Comp> &, const Entity entity) const ENTT_NOEXCEPT { return pool<Other>().get(entity); }
+    inline const Other & get([[maybe_unused]] const component_iterator_type<Comp> &it, [[maybe_unused]] const Entity entity) const ENTT_NOEXCEPT {
+        if constexpr(std::is_same_v<Comp, Other>) {
+            return *it;
+        } else {
+            return pool<Other>().get(entity);
+        }
+    }
 
     template<typename Comp, typename Func, std::size_t... Indexes>
     void each(const pool_type<Comp> &cpool, Func func, std::index_sequence<Indexes...>) const {
@@ -768,72 +734,33 @@ public:
     }
 
     /**
-     * @brief Returns the component assigned to the given entity.
-     *
-     * Prefer this function instead of `Registry::get` during iterations. It has
-     * far better performance than its companion function.
-     *
-     * @warning
-     * Attempting to use an invalid component type results in a compilation
-     * error. Attempting to use an entity that doesn't belong to the view
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * view doesn't contain the given entity.
-     *
-     * @tparam Comp Type of component to get.
-     * @param entity A valid entity identifier.
-     * @return The component assigned to the entity.
-     */
-    template<typename Comp>
-    const Comp & get(const entity_type entity) const ENTT_NOEXCEPT {
-        assert(contains(entity));
-        return pool<Comp>().get(entity);
-    }
-
-    /**
-     * @brief Returns the component assigned to the given entity.
-     *
-     * Prefer this function instead of `Registry::get` during iterations. It has
-     * far better performance than its companion function.
-     *
-     * @warning
-     * Attempting to use an invalid component type results in a compilation
-     * error. Attempting to use an entity that doesn't belong to the view
-     * results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode if the
-     * view doesn't contain the given entity.
-     *
-     * @tparam Comp Type of component to get.
-     * @param entity A valid entity identifier.
-     * @return The component assigned to the entity.
-     */
-    template<typename Comp>
-    inline Comp & get(const entity_type entity) ENTT_NOEXCEPT {
-        return const_cast<Comp &>(const_cast<const View *>(this)->get<Comp>(entity));
-    }
-
-    /**
      * @brief Returns the components assigned to the given entity.
      *
      * Prefer this function instead of `Registry::get` during iterations. It has
      * far better performance than its companion function.
      *
      * @warning
-     * Attempting to use invalid component types results in a compilation error.
-     * Attempting to use an entity that doesn't belong to the view results in
-     * undefined behavior.<br/>
+     * Attempting to use an invalid component type results in a compilation
+     * error. Attempting to use an entity that doesn't belong to the view
+     * results in undefined behavior.<br/>
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Types of the components to get.
+     * @tparam Comp Type of component to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename... Comp>
-    inline std::enable_if_t<(sizeof...(Comp) > 1), std::tuple<const Comp &...>>
+    template<typename Comp, typename... Other>
+    std::conditional_t<sizeof...(Other), std::tuple<const Comp &, const Other &...>, const Comp &>
     get(const entity_type entity) const ENTT_NOEXCEPT {
         assert(contains(entity));
-        return std::tuple<const Comp &...>{get<Comp>(entity)...};
+
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<const Comp &, const Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        } else {
+            return pool<Comp>().get(entity);
+        }
     }
 
     /**
@@ -843,21 +770,25 @@ public:
      * far better performance than its companion function.
      *
      * @warning
-     * Attempting to use invalid component types results in a compilation error.
-     * Attempting to use an entity that doesn't belong to the view results in
-     * undefined behavior.<br/>
+     * Attempting to use an invalid component type results in a compilation
+     * error. Attempting to use an entity that doesn't belong to the view
+     * results in undefined behavior.<br/>
      * An assertion will abort the execution at runtime in debug mode if the
      * view doesn't contain the given entity.
      *
-     * @tparam Comp Types of the components to get.
+     * @tparam Comp Type of component to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
      * @return The components assigned to the entity.
      */
-    template<typename... Comp>
-    inline std::enable_if_t<(sizeof...(Comp) > 1), std::tuple<Comp &...>>
+    template<typename Comp, typename... Other>
+    inline std::conditional_t<sizeof...(Other), std::tuple<Comp &, Other &...>, Comp &>
     get(const entity_type entity) ENTT_NOEXCEPT {
-        assert(contains(entity));
-        return std::tuple<Comp &...>{get<Comp>(entity)...};
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<Comp &, Other &...>{get<Comp>(entity), get<Other>(entity)...};
+        } else {
+            return const_cast<Comp &>(const_cast<const View *>(this)->get<Comp>(entity));
+        }
     }
 
     /**

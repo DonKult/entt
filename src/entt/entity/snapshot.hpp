@@ -126,47 +126,36 @@ public:
     }
 
     /**
-     * @brief Puts aside the given component.
-     *
-     * Each instance is serialized together with the entity to which it belongs.
-     * Entities are serialized along with their versions.
-     *
-     * @tparam Component Type of component to serialize.
-     * @tparam Archive Type of output archive.
-     * @param archive A valid reference to an output archive.
-     * @return An object of this type to continue creating the snapshot.
-     */
-    template<typename Component, typename Archive>
-    const Snapshot & component(Archive &archive) const {
-        const auto sz = registry.template size<Component>();
-        const auto *entities = registry.template data<Component>();
-
-        archive(static_cast<Entity>(sz));
-
-        for(std::remove_const_t<decltype(sz)> i{}; i < sz; ++i) {
-            const auto entity = entities[i];
-            archive(entity, registry.template get<Component>(entity));
-        };
-
-        return *this;
-    }
-
-    /**
      * @brief Puts aside the given components.
      *
      * Each instance is serialized together with the entity to which it belongs.
      * Entities are serialized along with their versions.
      *
-     * @tparam Component Types of components to serialize.
+     * @tparam Component Type of component to serialize.
+     * @tparam Other Other types of components to serialize.
      * @tparam Archive Type of output archive.
      * @param archive A valid reference to an output archive.
      * @return An object of this type to continue creating the snapshot.
      */
-    template<typename... Component, typename Archive>
-    std::enable_if_t<(sizeof...(Component) > 1), const Snapshot &>
-    component(Archive &archive) const {
-        (component<Component>(archive), ...);
-        return *this;
+    template<typename Component, typename... Other, typename Archive>
+    const Snapshot & component(Archive &archive) const {
+        if(sizeof...(Other)) {
+            component<Component>(archive);
+            (component<Other>(archive), ...);
+            return *this;
+        } else {
+            const auto sz = registry.template size<Component>();
+            const auto *entities = registry.template data<Component>();
+
+            archive(static_cast<Entity>(sz));
+
+            for(std::remove_const_t<decltype(sz)> i{}; i < sz; ++i) {
+                const auto entity = entities[i];
+                archive(entity, registry.template get<Component>(entity));
+            };
+
+            return *this;
+        }
     }
 
     /**
@@ -190,46 +179,35 @@ public:
     }
 
     /**
-     * @brief Puts aside the given tag.
-     *
-     * Each instance is serialized together with the entity to which it belongs.
-     * Entities are serialized along with their versions.
-     *
-     * @tparam Tag Type of tag to serialize.
-     * @tparam Archive Type of output archive.
-     * @param archive A valid reference to an output archive.
-     * @return An object of this type to continue creating the snapshot.
-     */
-    template<typename Tag, typename Archive>
-    const Snapshot & tag(Archive &archive) const {
-        const bool has = registry.template has<Tag>();
-
-        // numerical length is forced for tags to facilitate loading
-        archive(has ? Entity(1): Entity{});
-
-        if(has) {
-            archive(registry.template attachee<Tag>(), registry.template get<Tag>());
-        }
-
-        return *this;
-    }
-
-    /**
      * @brief Puts aside the given tags.
      *
      * Each instance is serialized together with the entity to which it belongs.
      * Entities are serialized along with their versions.
      *
-     * @tparam Tag Types of tags to serialize.
+     * @tparam Tag Type of tag to serialize.
+     * @tparam Other Other types of tags to serialize.
      * @tparam Archive Type of output archive.
      * @param archive A valid reference to an output archive.
      * @return An object of this type to continue creating the snapshot.
      */
-    template<typename... Tag, typename Archive>
-    std::enable_if_t<(sizeof...(Tag) > 1), const Snapshot &>
-    tag(Archive &archive) const {
-        (tag<Tag>(archive), ...);
-        return *this;
+    template<typename Tag, typename... Other, typename Archive>
+    const Snapshot & tag(Archive &archive) const {
+        if(sizeof...(Other)) {
+            tag<Tag>(archive);
+            (tag<Other>(archive), ...);
+            return *this;
+        } else {
+            const bool has = registry.template has<Tag>();
+
+            // numerical length is forced for tags to facilitate loading
+            archive(has ? Entity(1): Entity{});
+
+            if(has) {
+                archive(registry.template attachee<Tag>(), registry.template get<Tag>());
+            }
+
+            return *this;
+        }
     }
 
 private:
@@ -445,23 +423,18 @@ class ContinuousLoader final {
         }
     }
 
-    template<typename Type, typename Member>
-    std::enable_if_t<std::is_same_v<Member, Entity>>
-    update(Type &instance, Member Type:: *member) {
-        instance.*member = map(instance.*member);
-    }
-
-    template<typename Type, typename Member>
-    std::enable_if_t<std::is_same_v<typename std::iterator_traits<typename Member::iterator>::value_type, Entity>>
-    update(Type &instance, Member Type:: *member) {
-        for(auto &entity: instance.*member) {
-            entity = map(entity);
+    template<typename Other, typename Type, typename Member>
+    void update(Other &instance, Member Type:: *member) {
+        if constexpr(!std::is_same_v<Other, Type>) {
+            return;
+        } else if constexpr(std::is_same_v<Member, Entity>) {
+            instance.*member = map(instance.*member);
+        } else if constexpr(std::is_same_v<typename std::iterator_traits<typename Member::iterator>::value_type, Entity>) {
+            for(auto &entity: instance.*member) {
+                entity = map(entity);
+            }
         }
     }
-
-    template<typename Other, typename Type, typename Member>
-    std::enable_if_t<!std::is_same_v<Other, Type>>
-    update(Other &, Member Type:: *) {}
 
     template<typename Archive>
     void assure(Archive &archive, void(ContinuousLoader:: *member)(Entity)) {

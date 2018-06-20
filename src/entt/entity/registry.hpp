@@ -708,7 +708,7 @@ public:
     }
 
     /**
-     * @brief Returns a reference to the given component for an entity.
+     * @brief Returns references to the given components for an entity.
      *
      * @warning
      * Attempting to use an invalid entity or to get a component from an entity
@@ -718,18 +718,26 @@ public:
      * component.
      *
      * @tparam Component Type of component to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
-     * @return A reference to the component owned by the entity.
+     * @return References to the components owned by the entity.
      */
-    template<typename Component>
-    const Component & get(const entity_type entity) const ENTT_NOEXCEPT {
+    template<typename Component, typename... Other>
+    std::conditional_t<sizeof...(Other), std::tuple<const Component &, const Other &...>, const Component &>
+    get(const entity_type entity) const ENTT_NOEXCEPT {
         assert(valid(entity));
         assert(managed<Component>());
-        return pool<Component>().get(entity);
+        (assert(managed<Other>()), ...);
+
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<const Component &, const Other &...>{get<Component>(entity), get<Other>(entity)...};
+        } else {
+            return pool<Component>().get(entity);
+        }
     }
 
     /**
-     * @brief Returns a reference to the given component for an entity.
+     * @brief Returns references to the given components for an entity.
      *
      * @warning
      * Attempting to use an invalid entity or to get a component from an entity
@@ -739,52 +747,18 @@ public:
      * component.
      *
      * @tparam Component Type of component to get.
-     * @param entity A valid entity identifier.
-     * @return A reference to the component owned by the entity.
-     */
-    template<typename Component>
-    inline Component & get(const entity_type entity) ENTT_NOEXCEPT {
-        return const_cast<Component &>(const_cast<const Registry *>(this)->get<Component>(entity));
-    }
-
-    /**
-     * @brief Returns a reference to the given components for an entity.
-     *
-     * @warning
-     * Attempting to use an invalid entity or to get components from an entity
-     * that doesn't own them results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode in case of
-     * invalid entity or if the entity doesn't own instances of the given
-     * components.
-     *
-     * @tparam Component Type of components to get.
+     * @tparam Other Other types of components to get.
      * @param entity A valid entity identifier.
      * @return References to the components owned by the entity.
      */
-    template<typename... Component>
-    inline std::enable_if_t<(sizeof...(Component) > 1), std::tuple<const Component &...>>
-    get(const entity_type entity) const ENTT_NOEXCEPT {
-        return std::tuple<const Component &...>{get<Component>(entity)...};
-    }
-
-    /**
-     * @brief Returns a reference to the given components for an entity.
-     *
-     * @warning
-     * Attempting to use an invalid entity or to get components from an entity
-     * that doesn't own them results in undefined behavior.<br/>
-     * An assertion will abort the execution at runtime in debug mode in case of
-     * invalid entity or if the entity doesn't own instances of the given
-     * components.
-     *
-     * @tparam Component Type of components to get.
-     * @param entity A valid entity identifier.
-     * @return References to the components owned by the entity.
-     */
-    template<typename... Component>
-    inline std::enable_if_t<(sizeof...(Component) > 1), std::tuple<Component &...>>
+    template<typename Component, typename... Other>
+    inline std::conditional_t<sizeof...(Other), std::tuple<Component &, Other &...>, Component &>
     get(const entity_type entity) ENTT_NOEXCEPT {
-        return std::tuple<Component &...>{get<Component>(entity)...};
+        if constexpr(sizeof...(Other)) {
+            return std::tuple<Component &, Other &...>{get<Component>(entity), get<Other>(entity)...};
+        } else {
+            return const_cast<Component &>(const_cast<const Registry *>(this)->get<Component>(entity));
+        }
     }
 
     /**
