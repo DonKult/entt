@@ -3,7 +3,7 @@
 #include <entt/entity/registry.hpp>
 
 TEST(Dependency, Functionalities) {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
     const auto entity = registry.create();
     entt::dependency<double, float>(registry.construction<int>());
 

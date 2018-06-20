@@ -143,7 +143,7 @@ struct Velocity {
     float dy;
 };
 
-void update(entt::DefaultRegistry &registry) {
+void update(entt::Registry &registry) {
     auto view = registry.view<Position, Velocity>();
 
     for(auto entity: view) {
@@ -158,7 +158,7 @@ void update(entt::DefaultRegistry &registry) {
     }
 }
 
-void update(std::uint64_t dt, entt::DefaultRegistry &registry) {
+void update(std::uint64_t dt, entt::Registry &registry) {
     registry.view<Position, Velocity>().each([dt](auto entity, auto &position, auto &velocity) {
         // gets all the components of the view at once ...
 
@@ -170,7 +170,7 @@ void update(std::uint64_t dt, entt::DefaultRegistry &registry) {
 }
 
 int main() {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
     std::uint64_t dt = 16;
 
     for(auto i = 0; i < 10; ++i) {
@@ -328,13 +328,13 @@ specify the component set at compile-time.<br/>
 This is why users can instantiate the core class simply like:
 
 ```cpp
-entt::DefaultRegistry registry;
+entt::Registry registry;
 ```
 
 In place of its more annoying and error-prone counterpart:
 
 ```cpp
-entt::DefaultRegistry<Comp0, Comp1, ..., CompN> registry;
+entt::Registry<Comp0, Comp1, ..., CompN> registry;
 ```
 
 ### Pay per use
@@ -366,8 +366,8 @@ use as-is and store around if needed. Do not try to inspect an entity
 identifier, its format can change in future and a registry offers all the
 functionalities to query them out-of-the-box. The underlying type of an entity
 (either `std::uint16_t`, `std::uint32_t` or `std::uint64_t`) can be specified
-when defining a registry (actually the `DefaultRegistry` is nothing more than a
-`Registry` where the type of the entities is `std::uint32_t`).<br/>
+when defining a registry (actually `Registry` is nothing more than an _alias_
+for `Registry<std::uint32_t>`).<br/>
 Components (the _C_ of an _ECS_) should be plain old data structures or more
 complex and movable data structures with a proper constructor. Actually, the
 sole requirement of a component type is that it must be both move constructible
@@ -390,8 +390,7 @@ A registry can store and manage entities, as well as create views to iterate the
 underlying data structures.<br/>
 `Registry` is a class template that lets users decide what's the preferred type
 to represent an entity. Because `std::uint32_t` is large enough for almost all
-the cases, there exists also an alias named `DefaultRegistry` for
-`Registry<std::uint32_t>`.
+the cases, `Registry` is an _alias_ for `Registry<std::uint32_t>`.
 
 Entities are represented by _entity identifiers_. An entity identifier is an
 opaque type that users should not inspect or modify in any way. It carries
@@ -728,7 +727,7 @@ to work with the type system.
 In `EnTT`, identifiers are easily accessible:
 
 ```cpp
-entt::DefaultRegistry registry;
+entt::Registry registry;
 
 // standard component identifier
 auto ctype = registry.component<Position>();
@@ -1051,7 +1050,7 @@ how many prototypes they want, each one initialized differently from the others.
 The following is an example of use of a prototype:
 
 ```cpp
-entt::DefaultRegistry registry;
+entt::Registry registry;
 entt::DefaultPrototype prototype{registry};
 
 prototype.set<Position>(100.f, 100.f);
@@ -1153,7 +1152,7 @@ other than defining the null entity itself. However, there exist implicit
 conversions from the null entity to identifiers of any allowed type:
 
 ```cpp
-typename entt::DefaultRegistry::entity_type null = entt::null;
+typename entt::Registry::entity_type null = entt::null;
 ```
 
 Similarly, the null entity can be compared to any other identifier:

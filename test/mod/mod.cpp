@@ -20,14 +20,14 @@ struct DuktapeRuntime {
 };
 
 template<typename Comp>
-duk_ret_t set(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t set(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     registry.accommodate<Comp>(entity);
     return 0;
 }
 
 template<>
-duk_ret_t set<Position>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t set<Position>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     const auto x = duk_require_number(ctx, 2);
     const auto y = duk_require_number(ctx, 3);
@@ -36,7 +36,7 @@ duk_ret_t set<Position>(duk_context *ctx, entt::DefaultRegistry &registry) {
 }
 
 template<>
-duk_ret_t set<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t set<DuktapeRuntime>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     const auto type = duk_require_uint(ctx, 1);
 
@@ -54,14 +54,14 @@ duk_ret_t set<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry)
 }
 
 template<typename Comp>
-duk_ret_t unset(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t unset(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     registry.remove<Comp>(entity);
     return 0;
 }
 
 template<>
-duk_ret_t unset<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t unset<DuktapeRuntime>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     const auto type = duk_require_uint(ctx, 1);
 
@@ -77,14 +77,14 @@ duk_ret_t unset<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registr
 }
 
 template<typename Comp>
-duk_ret_t has(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t has(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     duk_push_boolean(ctx, registry.has<Comp>(entity));
     return 1;
 }
 
 template<>
-duk_ret_t has<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t has<DuktapeRuntime>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     duk_push_boolean(ctx, registry.has<DuktapeRuntime>(entity));
 
@@ -100,14 +100,14 @@ duk_ret_t has<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry)
 }
 
 template<typename Comp>
-duk_ret_t get(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t get(duk_context *ctx, entt::Registry<> &registry) {
     assert(registry.has<Comp>(duk_require_uint(ctx, 0)));
     duk_push_object(ctx);
     return 1;
 }
 
 template<>
-duk_ret_t get<Position>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t get<Position>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     const auto &position = registry.get<Position>(entity);
 
@@ -125,7 +125,7 @@ duk_ret_t get<Position>(duk_context *ctx, entt::DefaultRegistry &registry) {
 }
 
 template<>
-duk_ret_t get<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry) {
+duk_ret_t get<DuktapeRuntime>(duk_context *ctx, entt::Registry<> &registry) {
     const auto entity = duk_require_uint(ctx, 0);
     const auto type = duk_require_uint(ctx, 1);
 
@@ -140,11 +140,11 @@ duk_ret_t get<DuktapeRuntime>(duk_context *ctx, entt::DefaultRegistry &registry)
 
 class DuktapeRegistry {
     // I'm pretty sure I won't have more than 99 components in the example
-    static constexpr entt::DefaultRegistry::component_type udef = 100;
+    static constexpr entt::Registry<>::component_type udef = 100;
 
     struct Func {
-        using func_type = duk_ret_t(*)(duk_context *, entt::DefaultRegistry &);
-        using test_type = bool(entt::DefaultRegistry:: *)(entt::DefaultRegistry::entity_type) const;
+        using func_type = duk_ret_t(*)(duk_context *, entt::Registry<> &);
+        using test_type = bool(entt::Registry<>:: *)(entt::Registry<>::entity_type) const;
 
         func_type set;
         func_type unset;
@@ -160,7 +160,7 @@ class DuktapeRegistry {
                 &::unset<Comp>,
                 &::has<Comp>,
                 &::get<Comp>,
-                &entt::DefaultRegistry::has<Comp>
+                &entt::Registry<>::has<Comp>
         }), ...);
     }
 
@@ -192,7 +192,7 @@ class DuktapeRegistry {
     }
 
 public:
-    DuktapeRegistry(entt::DefaultRegistry &registry)
+    DuktapeRegistry(entt::Registry<> &registry)
         : registry{registry}
     {
         reg<Position, Renderable, DuktapeRuntime>();
@@ -274,7 +274,7 @@ public:
 
 private:
     std::map<duk_uint_t, Func> func;
-    entt::DefaultRegistry &registry;
+    entt::Registry<> &registry;
 };
 
 const duk_function_list_entry js_DuktapeRegistry_methods[] = {
@@ -288,7 +288,7 @@ const duk_function_list_entry js_DuktapeRegistry_methods[] = {
     { nullptr, nullptr, 0 }
 };
 
-void exportTypes(duk_context *ctx, entt::DefaultRegistry &registry) {
+void exportTypes(duk_context *ctx, entt::Registry<> &registry) {
     auto exportType = [](auto *ctx, auto &registry, auto idx, auto type, const auto *name) {
         duk_push_string(ctx, name);
         duk_push_uint(ctx, registry.template type<typename decltype(type)::type>());
@@ -315,7 +315,7 @@ void exportDuktapeRegistry(duk_context *ctx, DuktapeRegistry &dreg) {
 }
 
 TEST(Mod, Duktape) {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
     DuktapeRegistry dreg{registry};
     duk_context *ctx = duk_create_heap_default();
 

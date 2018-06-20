@@ -48,12 +48,12 @@ struct AnotherComponent {
 };
 
 struct WhatAComponent {
-    entt::DefaultRegistry::entity_type bar;
-    std::vector<entt::DefaultRegistry::entity_type> quux;
+    entt::Registry<>::entity_type bar;
+    std::vector<entt::Registry<>::entity_type> quux;
 };
 
 TEST(Snapshot, Dump) {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
 
     const auto e0 = registry.create();
     registry.assign<int>(e0, 42);
@@ -76,7 +76,7 @@ TEST(Snapshot, Dump) {
     auto v1 = registry.current(e1);
 
     using storage_type = std::tuple<
-        std::queue<entt::DefaultRegistry::entity_type>,
+        std::queue<entt::Registry<>::entity_type>,
         std::queue<int>,
         std::queue<char>,
         std::queue<double>,
@@ -142,7 +142,7 @@ TEST(Snapshot, Dump) {
 }
 
 TEST(Snapshot, Partial) {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
 
     const auto e0 = registry.create();
     registry.assign<int>(e0, 42);
@@ -165,7 +165,7 @@ TEST(Snapshot, Partial) {
     auto v1 = registry.current(e1);
 
     using storage_type = std::tuple<
-        std::queue<entt::DefaultRegistry::entity_type>,
+        std::queue<entt::Registry<>::entity_type>,
         std::queue<int>,
         std::queue<char>,
         std::queue<double>,
@@ -245,7 +245,7 @@ TEST(Snapshot, Partial) {
 }
 
 TEST(Snapshot, Iterator) {
-    entt::DefaultRegistry registry;
+    entt::Registry registry;
 
     for(auto i = 0; i < 50; ++i) {
         const auto entity = registry.create();
@@ -257,7 +257,7 @@ TEST(Snapshot, Iterator) {
     }
 
     using storage_type = std::tuple<
-        std::queue<entt::DefaultRegistry::entity_type>,
+        std::queue<entt::Registry<>::entity_type>,
         std::queue<AnotherComponent>
     >;
 
@@ -280,10 +280,10 @@ TEST(Snapshot, Iterator) {
 }
 
 TEST(Snapshot, Continuous) {
-    using entity_type = entt::DefaultRegistry::entity_type;
+    using entity_type = entt::Registry<>::entity_type;
 
-    entt::DefaultRegistry src;
-    entt::DefaultRegistry dst;
+    entt::Registry src;
+    entt::Registry dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 
@@ -492,10 +492,10 @@ TEST(Snapshot, Continuous) {
 }
 
 TEST(Snapshot, ContinuousMoreOnShrink) {
-    using entity_type = entt::DefaultRegistry::entity_type;
+    using entity_type = entt::Registry<>::entity_type;
 
-    entt::DefaultRegistry src;
-    entt::DefaultRegistry dst;
+    entt::Registry src;
+    entt::Registry dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 
@@ -520,10 +520,10 @@ TEST(Snapshot, ContinuousMoreOnShrink) {
 }
 
 TEST(Snapshot, SyncDataMembers) {
-    using entity_type = entt::DefaultRegistry::entity_type;
+    using entity_type = entt::Registry<>::entity_type;
 
-    entt::DefaultRegistry src;
-    entt::DefaultRegistry dst;
+    entt::Registry src;
+    entt::Registry dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 

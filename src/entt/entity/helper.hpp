@@ -39,7 +39,7 @@ void dependency(Registry<Entity> &registry, const Entity entity) {
  * The following adds components `AType` and `AnotherType` whenever `MyType` is
  * assigned to an entity:
  * @code{.cpp}
- * entt::DefaultRegistry registry;
+ * entt::Registry registry;
  * entt::dependency<AType, AnotherType>(registry.construction<MyType>());
  * @endcode
  *
@@ -62,7 +62,7 @@ void dependency(Sink<void(Registry<Entity> &, const Entity)> sink) {
  * The following breaks the dependency between the component `MyType` and the
  * components `AType` and `AnotherType`:
  * @code{.cpp}
- * entt::DefaultRegistry registry;
+ * entt::Registry registry;
  * entt::dependency<AType, AnotherType>(entt::break_t{}, registry.construction<MyType>());
  * @endcode
  *

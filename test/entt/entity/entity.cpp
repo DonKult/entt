@@ -7,12 +7,12 @@ template<bool>
 struct S {};
 
 TEST(Traits, Null) {
-    entt::DefaultRegistry registry{};
+    entt::Registry registry{};
 
     const auto entity = registry.create();
     registry.assign<int>(entity, 42);
 
-    ASSERT_TRUE(~typename entt::DefaultRegistry::entity_type{} == entt::null);
+    ASSERT_TRUE(~typename entt::Registry<>::entity_type{} == entt::null);
 
     ASSERT_TRUE(entt::null == entt::null);
     ASSERT_FALSE(entt::null != entt::null);
