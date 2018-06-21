@@ -3,7 +3,7 @@
 #include <entt/entity/registry.hpp>
 
 TEST(Prototype, SameRegistry) {
-    entt::Registry registry;
+    entt::Registry<> registry;
     entt::Prototype prototype{registry};
     const auto &cprototype = prototype;
 
@@ -62,8 +62,8 @@ TEST(Prototype, SameRegistry) {
 }
 
 TEST(Prototype, OtherRegistry) {
-    entt::Registry registry;
-    entt::Registry repository;
+    entt::Registry<> registry;
+    entt::Registry<> repository;
     entt::Prototype prototype{repository};
     const auto &cprototype = prototype;
 
@@ -122,7 +122,7 @@ TEST(Prototype, OtherRegistry) {
 }
 
 TEST(Prototype, RAII) {
-    entt::Registry registry;
+    entt::Registry<> registry;
 
     {
         entt::Prototype prototype{registry};
@@ -135,7 +135,7 @@ TEST(Prototype, RAII) {
 }
 
 TEST(Prototype, MoveConstructionAssignment) {
-    entt::Registry registry;
+    entt::Registry<> registry;
 
     entt::Prototype prototype{registry};
     prototype.set<int>(0);

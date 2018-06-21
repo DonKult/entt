@@ -53,7 +53,7 @@ struct WhatAComponent {
 };
 
 TEST(Snapshot, Dump) {
-    entt::Registry registry;
+    entt::Registry<> registry;
 
     const auto e0 = registry.create();
     registry.assign<int>(e0, 42);
@@ -142,7 +142,7 @@ TEST(Snapshot, Dump) {
 }
 
 TEST(Snapshot, Partial) {
-    entt::Registry registry;
+    entt::Registry<> registry;
 
     const auto e0 = registry.create();
     registry.assign<int>(e0, 42);
@@ -245,7 +245,7 @@ TEST(Snapshot, Partial) {
 }
 
 TEST(Snapshot, Iterator) {
-    entt::Registry registry;
+    entt::Registry<> registry;
 
     for(auto i = 0; i < 50; ++i) {
         const auto entity = registry.create();
@@ -282,8 +282,8 @@ TEST(Snapshot, Iterator) {
 TEST(Snapshot, Continuous) {
     using entity_type = entt::Registry<>::entity_type;
 
-    entt::Registry src;
-    entt::Registry dst;
+    entt::Registry<> src;
+    entt::Registry<> dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 
@@ -494,8 +494,8 @@ TEST(Snapshot, Continuous) {
 TEST(Snapshot, ContinuousMoreOnShrink) {
     using entity_type = entt::Registry<>::entity_type;
 
-    entt::Registry src;
-    entt::Registry dst;
+    entt::Registry<> src;
+    entt::Registry<> dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 
@@ -522,8 +522,8 @@ TEST(Snapshot, ContinuousMoreOnShrink) {
 TEST(Snapshot, SyncDataMembers) {
     using entity_type = entt::Registry<>::entity_type;
 
-    entt::Registry src;
-    entt::Registry dst;
+    entt::Registry<> src;
+    entt::Registry<> dst;
 
     entt::ContinuousLoader<entity_type> loader{dst};
 

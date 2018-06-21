@@ -7,7 +7,7 @@ template<bool>
 struct S {};
 
 TEST(Traits, Null) {
-    entt::Registry registry{};
+    entt::Registry<> registry{};
 
     const auto entity = registry.create();
     registry.assign<int>(entity, 42);

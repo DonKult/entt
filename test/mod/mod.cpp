@@ -315,7 +315,7 @@ void exportDuktapeRegistry(duk_context *ctx, DuktapeRegistry &dreg) {
 }
 
 TEST(Mod, Duktape) {
-    entt::Registry registry;
+    entt::Registry<> registry;
     DuktapeRegistry dreg{registry};
     duk_context *ctx = duk_create_heap_default();
 

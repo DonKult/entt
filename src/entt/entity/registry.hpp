@@ -724,7 +724,7 @@ public:
     template<typename... Component>
     decltype(auto) get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
         assert(valid(entity));
-        (assert(managed<Component>()), ...);
+        assert((true && ... && managed<Component>()));
 
         if constexpr(sizeof...(Component) == 1) {
             return pool<Component...>().get(entity);
@@ -1538,6 +1538,10 @@ private:
     size_type available{};
     entity_type next{};
 };
+
+
+template<typename Entity = std::uint32_t>
+Registry() -> Registry<std::uint32_t>;
 
 
 }

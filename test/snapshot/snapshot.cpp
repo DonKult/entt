@@ -36,8 +36,8 @@ void serialize(Archive &archive, Relationship &relationship) {
 TEST(Snapshot, Full) {
     std::stringstream storage;
 
-    entt::Registry source;
-    entt::Registry destination;
+    entt::Registry<> source;
+    entt::Registry<> destination;
 
     auto e0 = source.create();
     source.assign<Position>(e0, 16.f, 16.f);
@@ -91,8 +91,8 @@ TEST(Snapshot, Full) {
 TEST(Snapshot, Continuous) {
     std::stringstream storage;
 
-    entt::Registry source;
-    entt::Registry destination;
+    entt::Registry<> source;
+    entt::Registry<> destination;
 
     std::vector<entt::Registry<>::entity_type> entities;
     for(auto i = 0; i < 10; ++i) {
