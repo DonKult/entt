@@ -48,6 +48,11 @@ class Prototype final {
         basic_fn_type *assign;
     };
 
+    template<typename Component>
+    inline const Component & component() const ENTT_NOEXCEPT {
+        return registry->template get<Wrapper<Component>>(entity).component;
+    }
+
     void release() {
         if(registry->valid(entity)) {
             registry->destroy(entity);
@@ -183,8 +188,7 @@ public:
     template<typename... Component>
     decltype(auto) get() const ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
-            auto ident = [](const auto &component) -> decltype(auto) { return component; };
-            return (ident(registry->template get<Wrapper<Component>>(entity).component), ...);
+            return component<Component...>();
         } else {
             return std::tuple<const Component &...>{get<Component>()...};
         }
