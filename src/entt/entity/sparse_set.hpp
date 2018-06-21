@@ -930,10 +930,10 @@ public:
     object_type & construct(const entity_type entity, Args &&... args) {
         underlying_type::construct(entity);
 
-        if constexpr(std::is_constructible_v<Type, Args...>) {
-            instances.emplace_back(std::forward<Args>(args)...);
-        } else {
+        if constexpr(std::is_aggregate_v<Type>) {
             instances.emplace_back(Type{std::forward<Args>(args)...});
+        } else {
+            instances.emplace_back(std::forward<Args>(args)...);
         }
 
         return instances.back();
