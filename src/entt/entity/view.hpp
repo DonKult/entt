@@ -553,15 +553,10 @@ class View final {
         std::array<underlying_iterator_type, sizeof...(Component)> data{{cpool.view_type::cbegin(), std::get<Indexes>(other)->cbegin()...}};
         auto raw = std::make_tuple(pool<Component>().cbegin()...);
         const auto end = cpool.view_type::cend();
-        std::size_t pos{};
 
         // we can directly use the raw iterators if pools are ordered
-        while(!pos && data[0] != end) {
-            for(pos = data.size() - 1; pos && *(data[pos]++) == *data[pos-1]; --pos);
-
-            if(!pos) {
-                func(*(data[0]++), *(std::get<component_iterator_type<Component>>(raw)++)...);
-            }
+        while(((data[0] != end) && ... && (*data[0] == *(std::get<Indexes+1>(data)++)))) {
+            func(*(data[0]++), *(std::get<component_iterator_type<Component>>(raw)++)...);
         }
 
         const auto extent = std::min({ pool<Component>().extent()... });
@@ -572,7 +567,7 @@ class View final {
             const auto entity = *data[0];
             const auto sz = size_type(entity & traits_type::entity_mask);
 
-            if(sz < extent && std::all_of(other.cbegin(), other.cend(), [entity](const view_type *view) { return view->fast(entity); })) {
+            if(((sz < extent) && ... && std::get<Indexes>(other)->fast(entity))) {
                 // avoided at least the indirection due to the sparse set for the pivot type (see get for more details)
                 func(entity, get<Comp, Component>(it, entity)...);
             }
@@ -602,7 +597,7 @@ public:
      * @return True if the view is definitely empty, false otherwise.
      */
     bool empty() const ENTT_NOEXCEPT {
-        return std::max({ pool<Component>().empty()... });
+        return (pool<Component>().empty() || ...);
     }
 
     /**
@@ -726,7 +721,7 @@ public:
     bool contains(const entity_type entity) const ENTT_NOEXCEPT {
         const auto sz = size_type(entity & traits_type::entity_mask);
         const auto extent = std::min({ pool<Component>().extent()... });
-        return sz < extent && std::min({ (pool<Component>().has(entity) && (pool<Component>().data()[pool<Component>().view_type::get(entity)] == entity))... });
+        return ((sz < extent) && ... && (pool<Component>().has(entity) && (pool<Component>().data()[pool<Component>().view_type::get(entity)] == entity)));
     }
 
     /**
