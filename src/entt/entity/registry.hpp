@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cassert>
+#include <numeric>
 #include <iterator>
 #include <algorithm>
 #include <type_traits>

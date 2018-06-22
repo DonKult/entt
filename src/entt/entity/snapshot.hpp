@@ -139,7 +139,7 @@ public:
      */
     template<typename Component, typename... Other, typename Archive>
     const Snapshot & component(Archive &archive) const {
-        if(sizeof...(Other)) {
+        if constexpr(sizeof...(Other)) {
             component<Component>(archive);
             (component<Other>(archive), ...);
             return *this;
@@ -192,7 +192,7 @@ public:
      */
     template<typename Tag, typename... Other, typename Archive>
     const Snapshot & tag(Archive &archive) const {
-        if(sizeof...(Other)) {
+        if constexpr(sizeof...(Other)) {
             tag<Tag>(archive);
             (tag<Other>(archive), ...);
             return *this;

@@ -5,7 +5,6 @@
 #include <vector>
 #include <memory>
 #include <utility>
-#include <cstdint>
 #include <algorithm>
 #include <type_traits>
 #include "../config/config.h"

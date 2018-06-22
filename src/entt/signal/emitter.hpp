@@ -6,7 +6,7 @@
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 #include <list>
