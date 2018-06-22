@@ -131,29 +131,27 @@ public:
      * Each instance is serialized together with the entity to which it belongs.
      * Entities are serialized along with their versions.
      *
-     * @tparam Component Type of component to serialize.
-     * @tparam Other Other types of components to serialize.
+     * @tparam Component Types of components to serialize.
      * @tparam Archive Type of output archive.
      * @param archive A valid reference to an output archive.
      * @return An object of this type to continue creating the snapshot.
      */
-    template<typename Component, typename... Other, typename Archive>
+    template<typename... Component, typename Archive>
     const Snapshot & component(Archive &archive) const {
-        if constexpr(sizeof...(Other)) {
-            component<Component>(archive);
-            (component<Other>(archive), ...);
-            return *this;
-        } else {
-            const auto sz = registry.template size<Component>();
-            const auto *entities = registry.template data<Component>();
+        if constexpr(sizeof...(Component) == 1) {
+            const auto sz = registry.template size<Component...>();
+            const auto *entities = registry.template data<Component...>();
 
             archive(static_cast<Entity>(sz));
 
             for(std::remove_const_t<decltype(sz)> i{}; i < sz; ++i) {
                 const auto entity = entities[i];
-                archive(entity, registry.template get<Component>(entity));
+                archive(entity, registry.template get<Component...>(entity));
             };
 
+            return *this;
+        } else {
+            (component<Component>(archive), ...);
             return *this;
         }
     }
@@ -184,28 +182,26 @@ public:
      * Each instance is serialized together with the entity to which it belongs.
      * Entities are serialized along with their versions.
      *
-     * @tparam Tag Type of tag to serialize.
-     * @tparam Other Other types of tags to serialize.
+     * @tparam Tag Types of tags to serialize.
      * @tparam Archive Type of output archive.
      * @param archive A valid reference to an output archive.
      * @return An object of this type to continue creating the snapshot.
      */
-    template<typename Tag, typename... Other, typename Archive>
+    template<typename... Tag, typename Archive>
     const Snapshot & tag(Archive &archive) const {
-        if constexpr(sizeof...(Other)) {
-            tag<Tag>(archive);
-            (tag<Other>(archive), ...);
-            return *this;
-        } else {
-            const bool has = registry.template has<Tag>();
+        if constexpr(sizeof...(Tag) == 1) {
+            const bool has = registry.template has<Tag...>();
 
             // numerical length is forced for tags to facilitate loading
             archive(has ? Entity(1): Entity{});
 
             if(has) {
-                archive(registry.template attachee<Tag>(), registry.template get<Tag>());
+                archive(registry.template attachee<Tag...>(), registry.template get<Tag...>());
             }
 
+            return *this;
+        } else {
+            (tag<Tag>(archive), ...);
             return *this;
         }
     }
