@@ -723,8 +723,7 @@ public:
      * @return References to the components owned by the entity.
      */
     template<typename... Component>
-    std::conditional_t<sizeof...(Component) == 1, std::tuple_element_t<0, std::tuple<const Component &...>>, std::tuple<const Component &...>>
-    get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
+    decltype(auto) get([[maybe_unused]] const entity_type entity) const ENTT_NOEXCEPT {
         assert(valid(entity));
         assert((managed<Component>() && ...));
 
@@ -750,8 +749,7 @@ public:
      * @return References to the components owned by the entity.
      */
     template<typename... Component>
-    inline std::conditional_t<sizeof...(Component) == 1, std::tuple_element_t<0, std::tuple<Component &...>>, std::tuple<Component &...>>
-    get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
+    inline decltype(auto) get([[maybe_unused]] const entity_type entity) ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
             return (const_cast<Component &>(std::as_const(*this).template get<Component>(entity)), ...);
         } else {

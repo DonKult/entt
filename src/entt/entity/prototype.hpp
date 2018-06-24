@@ -186,8 +186,7 @@ public:
      * @return References to the components owned by the prototype.
      */
     template<typename... Component>
-    std::conditional_t<sizeof...(Component) == 1, std::tuple_element_t<0, std::tuple<const Component &...>>, std::tuple<const Component &...>>
-    get() const ENTT_NOEXCEPT {
+    decltype(auto) get() const ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
             return component<Component...>();
         } else {
@@ -208,8 +207,7 @@ public:
      * @return References to the components owned by the prototype.
      */
     template<typename... Component>
-    inline std::conditional_t<sizeof...(Component) == 1, std::tuple_element_t<0, std::tuple<Component &...>>, std::tuple<Component &...>>
-    get() ENTT_NOEXCEPT {
+    inline decltype(auto) get() ENTT_NOEXCEPT {
         if constexpr(sizeof...(Component) == 1) {
             return (const_cast<Component &>(std::as_const(*this).template get<Component>()), ...);
         } else {
