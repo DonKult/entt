@@ -148,12 +148,11 @@ public:
                 const auto entity = entities[i];
                 archive(entity, registry.template get<Component...>(entity));
             };
-
-            return *this;
         } else {
             (component<Component>(archive), ...);
-            return *this;
         }
+
+        return *this;
     }
 
     /**
@@ -198,12 +197,11 @@ public:
             if(has) {
                 archive(registry.template attachee<Tag...>(), registry.template get<Tag...>());
             }
-
-            return *this;
         } else {
             (tag<Tag>(archive), ...);
-            return *this;
         }
+
+        return *this;
     }
 
 private:
