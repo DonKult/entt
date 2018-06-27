@@ -538,12 +538,12 @@ Finally, references to components can be retrieved simply by doing this:
 const auto &cregistry = registry;
 
 // const and non-const reference
-const Position &position = cregistry.get<Position>(entity);
-Position &position = registry.get<Position>(entity);
+const auto &crenderable = cregistry.get<Renderable>(entity);
+auto &renderable = registry.get<Renderable>(entity);
 
 // const and non-const references
-std::tuple<const Position &, const Velocity &> tup = cregistry.get<Position, Velocity>(entity);
-std::tuple<Position &, Velocity &> tup = registry.get<Position, Velocity>(entity);
+const auto &[cposition, cvelocity] = cregistry.get<Position, Velocity>(entity);
+auto &[position, velocity] = registry.get<Position, Velocity>(entity);
 ```
 
 The `get` member function template gives direct access to the component of an
@@ -1354,11 +1354,11 @@ auto view = registry.view<Position, Velocity>();
 
 for(auto entity: view) {
     // a component at a time ...
-    Position &position = view.get<Position>(entity);
-    Velocity &velocity = view.get<Velocity>(entity);
+    auto &position = view.get<Position>(entity);
+    auto &velocity = view.get<Velocity>(entity);
 
     // ... or multiple components at once
-    std::tuple<Position &, Velocity &> tup = view.get<Position, Velocity>(entity);
+    auto &[position, velocity] = view.get<Position, Velocity>(entity);
 
     // ...
 }
@@ -1428,11 +1428,11 @@ auto view = registry.view<Position, Velocity>(entt::persistent_t{});
 
 for(auto entity: view) {
     // a component at a time ...
-    Position &position = view.get<Position>(entity);
-    Velocity &velocity = view.get<Velocity>(entity);
+    auto &position = view.get<Position>(entity);
+    auto &velocity = view.get<Velocity>(entity);
 
     // ... or multiple components at once
-    std::tuple<Position &, Velocity &> tup = view.get<Position, Velocity>(entity);
+    auto &[position, velocity] = view.get<Position, Velocity>(entity);
 
     // ...
 }
