@@ -64,7 +64,7 @@ TEST(Registry, Functionalities) {
     ASSERT_NO_THROW(registry.reserve<char>(8));
     ASSERT_TRUE(registry.empty());
 
-    ASSERT_EQ(registry.capacity(), entt::Registry<>::size_type{0});
+    ASSERT_EQ(registry.capacity(), entt::Registry<>::size_type{42});
     ASSERT_EQ(registry.capacity<int>(), entt::Registry<>::size_type{8});
     ASSERT_EQ(registry.capacity<char>(), entt::Registry<>::size_type{8});
     ASSERT_EQ(registry.size<int>(), entt::Registry<>::size_type{0});
@@ -81,7 +81,6 @@ TEST(Registry, Functionalities) {
     ASSERT_TRUE(registry.has<>(e0));
     ASSERT_TRUE(registry.has<>(e1));
 
-    ASSERT_EQ(registry.capacity(), entt::Registry<>::size_type{2});
     ASSERT_EQ(registry.size<int>(), entt::Registry<>::size_type{1});
     ASSERT_EQ(registry.size<char>(), entt::Registry<>::size_type{1});
     ASSERT_FALSE(registry.empty<int>());

@@ -216,8 +216,8 @@ public:
 
         duk_push_array(ctx);
 
-        std::vector<typename entt::DefaultRegistry::component_type> components;
-        std::vector<typename entt::DefaultRegistry::component_type> runtime;
+        std::vector<typename entt::Registry<>::component_type> components;
+        std::vector<typename entt::Registry<>::component_type> runtime;
 
         for(duk_idx_t arg = 0; arg < nargs; arg++) {
             auto type = duk_require_uint(ctx, arg);

@@ -97,7 +97,7 @@ public:
      * After a reset, a delegate can be safely invoked with no effect.
      */
     void reset() ENTT_NOEXCEPT {
-        stub.second = proto_fn_type{};
+        stub.second = nullptr;
     }
 
     /**

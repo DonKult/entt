@@ -1455,7 +1455,7 @@ public:
      */
     template<typename It>
     RuntimeView<Entity> view(It first, It last) {
-        static_assert(std::is_convertible<typename std::iterator_traits<It>::value_type, component_type>::value, "!");
+        static_assert(std::is_convertible<typename std::iterator_traits<It>::value_type, component_type>::value);
         std::vector<const SparseSet<Entity> *> set(last - first);
 
         std::transform(first, last, set.begin(), [this](const component_type ctype) {

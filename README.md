@@ -1529,7 +1529,7 @@ for(auto entity: view) {
     Velocity &velocity = registry.get<Velocity>(entity);
 
     // ... or multiple components at once
-    std::tuple<Position &, Velocity &> tup = view.get<Position, Velocity>(entity);
+    auto &[position, velocity] = view.get<Position, Velocity>(entity);
 
     // ...
 }
