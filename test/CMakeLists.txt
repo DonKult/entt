@@ -23,9 +23,52 @@ target_compile_features(odr
     PRIVATE $<TARGET_PROPERTY:EnTT,INTERFACE_COMPILE_FEATURES>
 )
 
+# make GTest available
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+option(BUILD_BENCHMARK "Build benchmark." OFF)
+option(BUILD_MOD "Build mod example." OFF)
+option(BUILD_SNAPSHOT "Build snapshot example." OFF)
+
+find_path(GOOGLETEST_DEPS_DIR src/gtest.cc
+    ${entt_SOURCE_DIR}/deps/googletest
+    /usr/src/googletest/googletest
+    /usr/src/gtest
+    )
+find_package(GTest)
+set(GTEST_DEPENDENCIES)
+
+if(NOT GTEST_FOUND AND EXISTS ${GTEST_ROOT})
+    include(ExternalProject)
+    ExternalProject_Add(gtest PREFIX ./gtest
+        SOURCE_DIR ${GTEST_ROOT}
+        INSTALL_COMMAND true)
+
+    link_directories(${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest-build)
+
+    set(GTEST_LIBRARIES "-lgtest")
+    set(GTEST_DEPENDENCIES "gtest")
+    set(GTEST_FOUND TRUE)
+    find_path(GTEST_INCLUDE_DIRS NAMES gtest/gtest.h PATHS ${GTEST_ROOT}/include)
+
+    message(STATUS "Found GTest at ${GTEST_ROOT}, headers at ${GTEST_INCLUDE_DIRS}")
+endif()
+
+if(NOT GTEST_FOUND)
+    message(FATAL_ERROR "GTest is required to build and run the tests")
+endif()
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
 macro(ADD_ENTT_TEST TEST_NAME TEST_SOURCE)
     add_executable(${TEST_NAME} $<TARGET_OBJECTS:odr> ${TEST_SOURCE})
-    target_link_libraries(${TEST_NAME} PRIVATE EnTT gtest_main Threads::Threads)
+    target_link_libraries(${TEST_NAME} PRIVATE EnTT gtest_main Threads::Threads ${GTEST_LIBRARIES})
+    target_include_directories(${TEST_NAME} PRIVATE ${GTEST_INCLUDE_DIRS})
+    if (GTEST_DEPENDENCIES)
+        add_dependencies(${TEST_NAME} ${GTEST_DEPENDENCIES})
+    endif()
     set_target_properties(${TEST_NAME} PROPERTIES CXX_EXTENSIONS OFF)
     target_compile_options(${TEST_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-pedantic -Wall>)
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
